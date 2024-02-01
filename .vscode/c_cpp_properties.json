@@ -1,0 +1,64 @@
+//
+// !!! WARNING !!! AUTO-GENERATED FILE!
+// PLEASE DO NOT MODIFY IT AND USE "platformio.ini":
+// https://docs.platformio.org/page/projectconf/section_env_build.html#build-flags
+//
+{
+    "configurations": [
+        {
+            "name": "PlatformIO",
+            "includePath": [
+                "C:/Users/thevizwiz/Documents/_School/2023-24/Senior Design/gamtry_code/include",
+                "C:/Users/thevizwiz/Documents/_School/2023-24/Senior Design/gamtry_code/src",
+                "C:/Users/thevizwiz/.platformio/packages/framework-arduino-avr-megacore/cores/MegaCore",
+                "C:/Users/thevizwiz/.platformio/packages/framework-arduino-avr-megacore/variants/100-pin-arduino-mega",
+                "C:/Users/thevizwiz/.platformio/packages/framework-arduino-avr-megacore/libraries/AVR_examples/src",
+                "C:/Users/thevizwiz/.platformio/packages/framework-arduino-avr-megacore/libraries/EEPROM/src",
+                "C:/Users/thevizwiz/.platformio/packages/framework-arduino-avr-megacore/libraries/Flash/src",
+                "C:/Users/thevizwiz/.platformio/packages/framework-arduino-avr-megacore/libraries/SD/src",
+                "C:/Users/thevizwiz/.platformio/packages/framework-arduino-avr-megacore/libraries/SPI/src",
+                "C:/Users/thevizwiz/.platformio/packages/framework-arduino-avr-megacore/libraries/Servo/src",
+                "C:/Users/thevizwiz/.platformio/packages/framework-arduino-avr-megacore/libraries/SoftwareSerial/src",
+                "C:/Users/thevizwiz/.platformio/packages/framework-arduino-avr-megacore/libraries/Timer/src",
+                "C:/Users/thevizwiz/.platformio/packages/framework-arduino-avr-megacore/libraries/Wire/src",
+                ""
+            ],
+            "browse": {
+                "limitSymbolsToIncludedHeaders": true,
+                "path": [
+                    "C:/Users/thevizwiz/Documents/_School/2023-24/Senior Design/gamtry_code/include",
+                    "C:/Users/thevizwiz/Documents/_School/2023-24/Senior Design/gamtry_code/src",
+                    "C:/Users/thevizwiz/.platformio/packages/framework-arduino-avr-megacore/cores/MegaCore",
+                    "C:/Users/thevizwiz/.platformio/packages/framework-arduino-avr-megacore/variants/100-pin-arduino-mega",
+                    "C:/Users/thevizwiz/.platformio/packages/framework-arduino-avr-megacore/libraries/AVR_examples/src",
+                    "C:/Users/thevizwiz/.platformio/packages/framework-arduino-avr-megacore/libraries/EEPROM/src",
+                    "C:/Users/thevizwiz/.platformio/packages/framework-arduino-avr-megacore/libraries/Flash/src",
+                    "C:/Users/thevizwiz/.platformio/packages/framework-arduino-avr-megacore/libraries/SD/src",
+                    "C:/Users/thevizwiz/.platformio/packages/framework-arduino-avr-megacore/libraries/SPI/src",
+                    "C:/Users/thevizwiz/.platformio/packages/framework-arduino-avr-megacore/libraries/Servo/src",
+                    "C:/Users/thevizwiz/.platformio/packages/framework-arduino-avr-megacore/libraries/SoftwareSerial/src",
+                    "C:/Users/thevizwiz/.platformio/packages/framework-arduino-avr-megacore/libraries/Timer/src",
+                    "C:/Users/thevizwiz/.platformio/packages/framework-arduino-avr-megacore/libraries/Wire/src",
+                    ""
+                ]
+            },
+            "defines": [
+                "PLATFORMIO=60113",
+                "ARDUINO_AVR_ATmega2560",
+                "F_CPU=16000000L",
+                "ARDUINO_ARCH_AVR",
+                "ARDUINO=10808",
+                "__AVR_ATmega2560__",
+                ""
+            ],
+            "cStandard": "gnu11",
+            "cppStandard": "gnu++17",
+            "compilerPath": "C:/Users/thevizwiz/.platformio/packages/toolchain-atmelavr/bin/avr-gcc.exe",
+            "compilerArgs": [
+                "-mmcu=atmega2560",
+                ""
+            ]
+        }
+    ],
+    "version": 4
+}
