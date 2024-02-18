@@ -8,9 +8,12 @@
 #include "Position.h"
 
 
-typedef enum {
-    NO_HEAD, GRIPPER, GLUE, STAMP
-} Head;
+class Head {
+
+
+private:
+    Head();
+};
 
 typedef struct {
     Head head;
