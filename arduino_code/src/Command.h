@@ -9,12 +9,25 @@
 #include "Position.h"
 #include "Arduino.h"
 #include "Vector.h"
+#include "Gantry.h"
+
 
 #define MAX_BUFFERED_COMMANDS 10
 
+struct Command {
 
-struct Command : Position {
+public:
+
+    static const Command NO_COMMAND;
+    Command();
+    Command(boolean isNoCommand);
     boolean isNoCommand;
+    virtual void execute(GantryConfiguration gantry);
+};
+
+
+
+struct BaseCommand : Command, Position {
     unsigned long time = 0;
     boolean time_changed = false,
             x_changed = false,
@@ -28,14 +41,14 @@ struct Command : Position {
 
 
 public:
-    static const Command NO_COMMAND;
 
-    Command();
+    BaseCommand();
 
-    Command(boolean isNoCommand);
-
+    BaseCommand(boolean isNoCommand);
 
     String toString();
+
+    void execute(GantryConfiguration gantry) override;
 
 
 };

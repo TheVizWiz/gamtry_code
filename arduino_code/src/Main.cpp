@@ -13,6 +13,9 @@ Servo servo = Servo();
 long numCommands = 0;
 
 
+GantryConfiguration gantry = GantryConfiguration();
+
+
 void setup() {
     Serial.begin(115200);
     Serial.setTimeout(10);
@@ -24,14 +27,12 @@ void loop() {
     queue.queueCommand();
     Command command = queue.popNextCommand();
 
+
     if (command.isNoCommand)
         return;
 
 
-    Serial.println(command.toString());
-
-    if (command.theta_changed)
-        servo.write(command.theta);
+    command.execute(gantry);
 
 }
 

@@ -12,7 +12,6 @@ Command CommandQueue::popNextCommand() {
         return Command::NO_COMMAND;
     }
 
-//    Serial.println("in pop next command.");
 
     Command command = commands.front();
 
@@ -27,7 +26,6 @@ Command CommandQueue::queueCommand() {
     if (command.isNoCommand)
         return command;
 
-//    Serial.println("adding command");
     commands.push_back(command);
 
     return command;
@@ -50,12 +48,14 @@ Command CommandQueue::queueCommand(long tryMillis) {
 }
 
 Command CommandQueue::askSerialForNextCommand() {
+    Serial.println("pls send");
+    delay(10);
+
     if (!Serial.available())
         return Command::NO_COMMAND;
 
-//    Serial.print("found a command waiting. Command:  ");
+
     String inputString = Serial.readString();
-//    Serial.println(inputString);
 
     Command nextCommand = CommandParser::parse(inputString);
     return nextCommand;
@@ -69,7 +69,7 @@ unsigned int CommandQueue::numAvailableCommands() const {
 Command CommandParser::parse(String input) {
 
 
-    Command command = Command();
+    BaseCommand command = BaseCommand();
     String tokenArray[MAX_COMMANDS_PER_MESSAGE];
     Vector<String> tokens = Vector<String>(tokenArray);
     input.trim();
@@ -80,7 +80,6 @@ Command CommandParser::parse(String input) {
         if (input[currentLocation] == ' ') {
             tokens.push_back(input.substring(0, currentLocation));
             input = input.substring(currentLocation + 1);
-//            Serial.println(input);
             currentLocation = 0;
 
         } else {
@@ -88,17 +87,8 @@ Command CommandParser::parse(String input) {
         }
     }
 
-//    Serial.println(input);
     tokens.push_back(input);
     for (const auto &item: tokens)
-//        Serial.println(item);
-
-
-
-
-
-
-
 
 
         for (auto token: tokens) {
@@ -153,7 +143,7 @@ Command CommandParser::parse(String input) {
 const Command Command::NO_COMMAND = Command(true);
 
 
-Command::Command() {
+BaseCommand::BaseCommand() {
     this->isNoCommand = false;
     this->x = 0;
     this->y = 0;
@@ -165,7 +155,7 @@ Command::Command(boolean isNoCommand) : Command() {
     this->isNoCommand = isNoCommand;
 }
 
-String Command::toString() {
+String BaseCommand::toString() {
 
     if (isNoCommand)
         return "not a command";
@@ -199,6 +189,10 @@ String Command::toString() {
 
 
     return string;
+}
+
+void BaseCommand::execute(GantryConfiguration gantry) {
+    if (theta_changed)
 }
 
 

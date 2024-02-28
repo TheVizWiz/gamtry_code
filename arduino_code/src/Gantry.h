@@ -15,10 +15,14 @@ private:
     Head();
 };
 
-typedef struct {
+struct GantryConfiguration {
     Head head;
     Position position;
-} GantryConfiguration ;
+
+public:
+    GantryConfiguration();
+
+};
 
 
 
