@@ -4,7 +4,7 @@
 #include "Position.h"
 #include "Gantry.h"
 #include "Vector.h"
-#include "Command.h"
+#include "Command/Command.h"
 #include "Servo.h"
 
 
