@@ -74,10 +74,12 @@ static const char COMMAND_SPECIAL       = 'S';
 
 `HEAD_1, HEAD_2, HEAD_3` are commands meant for controlling the parts on board a specific head. These will be used to control functions for each specific head.
 
+
+`TIME` is used to set a delta time for how long the command should take to execute.
+
 `HEAD_CHANGE` is used to tell the gantry that the current command is a head changing command. The head to change to is signified by the number portion of the token.
 
 `SPECIAL` is used to tell the gantry that the current command is a special command. Examples of these include homing commands, axis resetting commands, and testing commands.
-
 
 
 
@@ -110,4 +112,13 @@ If a command contains tokens for more than one command type, then it is assumed 
 
 
 
+
+## Time Constraints
+
+
+The time taken for a command to execute only matters for `BASE` commands; all other commands have set sequences of tokens with times to execute, and cannot have a time set in the command itself. 
+
+For a `BASE` command, the maximum speed of the entire command is defined by the minimum of the maximum speeds of all the involved motors. If motor A can go at 20 mm/s and motor B can go at 30 mm/s, but A has to go 100mm and B only has to go 60 mm, then A will take 5 seconds, and B will take 2 seconds to achieve its final position. Therefore, the entire command should take 5 seconds.
+
+To sync motors, the minimum time required for the command to execute is first calculated using maximum motor velocity constants. If the time asked for is less than the minimum time, the minimum time is used instead. Motor speeds are calculated proportionally based on the required distance and allotted time for the movement.
 
