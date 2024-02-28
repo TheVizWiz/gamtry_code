@@ -27,7 +27,7 @@ private:
 
     static const char COMMAND_SPECIAL = 'S';
 
-    static const int MAX_COMMANDS_PER_MESSAGE = 10;
+    static const int MAX_TOKENS_PER_COMMAND = 10;
 
 
 };

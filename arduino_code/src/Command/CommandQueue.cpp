@@ -34,7 +34,7 @@ Command CommandQueue::queueCommand(long tryMillis) {
     Serial.println(SERIAL_PING_MESSAGE);
     while (millis() - startMillis <= tryMillis) {
         Command command = askSerialForNextCommand();
-        if (command.isNoCommand)
+        if (command.isNoCommand())
             continue;
         commands.push_back(command);
         return command;

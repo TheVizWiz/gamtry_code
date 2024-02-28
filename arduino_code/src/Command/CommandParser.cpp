@@ -8,8 +8,8 @@
 Command CommandParser::parse(String input) {
 
 
-    BaseCommand command = BaseCommand();
-    String tokenArray[MAX_COMMANDS_PER_MESSAGE];
+    Command command = Command(CommandType::BASE);
+    String tokenArray[MAX_TOKENS_PER_COMMAND];
     Vector<String> tokens = Vector<String>(tokenArray);
     input.trim();
 
@@ -27,53 +27,67 @@ Command CommandParser::parse(String input) {
     }
 
     tokens.push_back(input);
-    for (const auto &item: tokens)
+
+    if (tokens.size() == 0) return Command::NO_COMMAND;
 
 
-        for (auto token: tokens) {
-            char commandChar = token[0];
-            String amount = token.substring(1);
+    for (const String token: tokens) {
+        char commandChar = token[0];
+        String amount = token.substring(1);
 
 
-            switch (commandChar) {
-                case COMMAND_TIME:
-                    command.time = amount.toInt();
-                    command.time_changed = true;
-                    break;
-                case COMMAND_X:
-                    command.x = amount.toFloat();
-                    command.x_changed = true;
-                    break;
-                case COMMAND_Y:
-                    command.y = amount.toFloat();
-                    command.y_changed = true;
-                    break;
-                case COMMAND_Z:
-                    command.z = amount.toFloat();
-                    command.z_changed = true;
-                    break;
-                case COMMAND_THETA:
-                    command.theta = amount.toFloat();
-                    command.theta_changed = true;
-                    break;
-                case COMMAND_HEAD_CHANGE:
-                    command.head = amount.toInt();
-                    command.head_changed = true;
-                    break;
-                case COMMAND_HEAD_1:
-                    command.head_1 = amount.toFloat();
-                    command.head_1_changed = true;
-                    break;
-                case COMMAND_HEAD_2:
-                    command.head_2 = amount.toFloat();
-                    command.head_2_changed = true;
-                    break;
-                case COMMAND_HEAD_3:
-                    command.head_3 = amount.toFloat();
-                    command.head_3_changed = true;
+        switch (commandChar) {
 
-            }
+
+            // check for special command
+            case COMMAND_SPECIAL:
+                command.type = CommandType::SPECIAL;
+                command.special = amount.toInt();
+                return command;
+
+                // check for head change command
+            case COMMAND_HEAD_CHANGE:
+                command.type = CommandType::HEAD_CHANGE;
+                command.head = amount.toInt();
+                return command;
+
+
+
+                // all other commands considered base commands
+            case COMMAND_TIME:
+                command.time = amount.toInt();
+                command.time_changed = true;
+                break;
+            case COMMAND_X:
+                command.x = amount.toFloat();
+                command.x_changed = true;
+                break;
+            case COMMAND_Y:
+                command.y = amount.toFloat();
+                command.y_changed = true;
+                break;
+            case COMMAND_Z:
+                command.z = amount.toFloat();
+                command.z_changed = true;
+                break;
+            case COMMAND_THETA:
+                command.theta = amount.toFloat();
+                command.theta_changed = true;
+                break;
+            case COMMAND_HEAD_1:
+                command.head_1 = amount.toFloat();
+                command.head_1_changed = true;
+                break;
+            case COMMAND_HEAD_2:
+                command.head_2 = amount.toFloat();
+                command.head_2_changed = true;
+                break;
+            case COMMAND_HEAD_3:
+                command.head_3 = amount.toFloat();
+                command.head_3_changed = true;
+
         }
+    }
 
     return command;
 }

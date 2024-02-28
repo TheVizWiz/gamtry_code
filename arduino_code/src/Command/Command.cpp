@@ -8,10 +8,12 @@
 
 
 
-const Command Command::NO_COMMAND = Command(true);
+Command::Command(CommandType type) : Command() {
+    this->type = type;
+}
 
-Command::Command(boolean isNoCommand) : Command() {
-    this->isNoCommand = isNoCommand;
+boolean Command::isNoCommand() {
+    return type == CommandType::NONE;
 }
 
 

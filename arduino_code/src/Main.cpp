@@ -6,6 +6,7 @@
 #include "Vector.h"
 #include "Command/Command.h"
 #include "Servo.h"
+#include "Command/CommandQueue.h"
 
 
 CommandQueue queue = CommandQueue();
@@ -28,7 +29,7 @@ void loop() {
     Command command = queue.popNextCommand();
 
 
-    if (command.isNoCommand)
+    if (command.isNoCommand())
         return;
 
 
