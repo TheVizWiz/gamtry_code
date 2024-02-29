@@ -57,7 +57,7 @@ static const char COMMAND_X             = 'X';
 static const char COMMAND_Y             = 'Y';
 static const char COMMAND_Z             = 'Z';
 static const char COMMAND_THETA         = 'T';
-static const char COMMAND_TIME          = 't';
+static const char COMMAND_TIME          = 'theta';
 
 static const char COMMAND_HEAD_1        = 'h';
 static const char COMMAND_HEAD_2        = 'i';

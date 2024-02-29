@@ -47,6 +47,11 @@ public:
             head_1_changed,
             head_2_changed,
             head_3_changed;
+
+private:
+    void executeBase(GantryConfiguration gantry);
+    void executeHeadChange(GantryConfiguration gantry);
+    void executeSpecial(GantryConfiguration gantry);
 };
 
 const Command Command::NO_COMMAND = Command(CommandType::NONE);

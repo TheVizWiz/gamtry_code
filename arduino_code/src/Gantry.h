@@ -6,25 +6,60 @@
 #define GAMTRY_CODE_GANTRY_H
 
 #include "Position.h"
+#include "AccelStepper.h"
+
+
+#define X1_MOTOR_PINS 22, 24, 26, 28
+#define X2_MOTOR_PINS 23, 25, 27, 29
+#define Y_MOTOR_PINS 30, 32, 34, 36
+#define Z_MOTOR_PINS 31, 33, 35, 37
+#define THETA_MOTOR_PINS 38, 40, 42, 44
+
+#define X_STEPS_PER_MM 30
+#define Y_STEPS_PER_MM 30
+#define Z_STEPS_PER_MM 30
+#define THETA_STEPS_PER_DEG 30
+
+#define X_MM_PER_STEP (1 / X_STEPS_PER_MM)
+#define Y_MM_PER_STEP (1 / Y_STEPS_PER_MM)
+#define Z_MM_PER_STEP (1 / Z_STEPS_PER_MM)
+#define THETA_DEG_PER_STEP (1 / THETA_STEPS_PER_DEG)
+
+
+#define X_MAX_STEPS_PER_SECOND 100
+#define Y_MAX_STEPS_PER_SECOND 100
+#define Z_MAX_STEPS_PER_SECOND 100
+#define THETA_MAX_STEPS_PER_SECOND 100
+
+#define X_MAX_MM_PER_SECOND (X_MAX_STEPS_PER_SECOND * X_MM_PER_STEP)
+#define Y_MAX_MM_PER_SECOND (Y_MAX_STEPS_PER_SECOND * Y_MM_PER_STEP)
+#define Z_MAX_MM_PER_SECOND (Z_MAX_STEPS_PER_SECOND * Z_MM_PER_STEP)
+#define THETA_MAX_DEG_PER_SECOND (THETA_MAX_STEPS_PER_SECOND * THETA_DEG_PER_STEP)
 
 
 class Head {
 
-
-private:
-    Head();
 };
 
 struct GantryConfiguration {
     Head head;
     Position position;
 
+    AccelStepper
+            x1_motor,
+            x2_motor,
+            y_motor,
+            z_motor,
+            theta_motor;
+
 public:
+
     GantryConfiguration();
 
+    void updatePosition();
+
+
 };
-
-
 
 
 #endif //GAMTRY_CODE_GANTRY_H

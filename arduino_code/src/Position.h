@@ -19,6 +19,4 @@ public:
 };
 
 
-
-
 #endif //GAMTRY_CODE_POSITION_H
