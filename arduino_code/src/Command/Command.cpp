@@ -3,20 +3,20 @@
 //
 
 #include "Command.h"
-#include "CommandParser.h"
 
+
+const Command Command::NO_COMMAND = Command(CommandType::NONE);
+
+
+Command::Command() {
+
+}
 
 Command::Command(CommandType type) : Command() {
     this->type = type;
 }
 
-boolean Command::isNoCommand() {
-    return type == CommandType::NONE;
-}
-
-
-void Command::execute(GantryConfiguration gantry) {
-
+void Command::execute(GantryConfiguration &gantry) {
     switch (this->type) {
 
         case NONE:
@@ -27,47 +27,72 @@ void Command::execute(GantryConfiguration gantry) {
         case HEAD_CHANGE:
             executeHeadChange(gantry);
             break;
-        case SPECIAL:
+        case SPECIAL_COMMAND:
             executeSpecial(gantry);
             break;
     }
 }
 
-void Command::executeBase(GantryConfiguration gantry) {
-
-
-    float dx = x_changed ? (gantry.position.x - x) : 0; // mm
-    float dy = y_changed ? (gantry.position.y - y) : 0; // mm
-    float dz = z_changed ? (gantry.position.z - z) : 0; // mm
-    float dtheta = theta_changed ? (gantry.position.theta - theta) : 0; // mm
+void Command::executeBase(GantryConfiguration &gantry) {
 
 
 
 
-
-    if (time_changed) {
-        float min_x_time = abs(dx) / X_MAX_MM_PER_SECOND; // mm / (mm / s) = mm * s / mm = s = seconds
-        float min_y_time = abs(dx) / Y_MAX_MM_PER_SECOND; // mm / (mm / s) = mm * s / mm = s = seconds
-        float min_z_time = abs(dx) / Z_MAX_MM_PER_SECOND; // mm / (mm / s) = mm * s / mm = s = seconds
-        float min_theta_time = abs(dx) / THETA_MAX_DEG_PER_SECOND; // deg / (deg / s) = deg * s / deg = s = seconds
-
-        time = min(min_x_time, time);
-        time = min(min_y_time, time);
-        time = min(min_z_time, time);
-        time = min(min_theta_time, time);
-    }
+//    Serial.print("Gantry x position: ");
+//    Serial.println(gantry.position.x);
+//    Serial.print("Wanted x position: ");
+//    Serial.println(x);
 
 
-    float x_speed_mm = dx / time; // mm per second
-    float y_speed_mm = dy / time; // mm per second
-    float z_speed_mm = dz / time; // mm per second
-    float theta_speed_mm = dtheta / time; // deg per second
+
+    double dx = x_changed ? (x - gantry.position.x) : 0; // mm
+    double dy = y_changed ? (y - gantry.position.y) : 0; // mm
+    double dz = z_changed ? (z - gantry.position.z) : 0; // mm
+    double dtheta = theta_changed ? (theta - gantry.position.theta) : 0; // mm
 
 
-    float x_speed_steps = x_speed_mm * X_STEPS_PER_MM; // steps per second
-    float y_speed_steps = y_speed_mm * Y_STEPS_PER_MM; // steps per second
-    float z_speed_steps = z_speed_mm * Z_STEPS_PER_MM; // steps per second
-    float theta_speed_steps = theta_speed_mm * THETA_STEPS_PER_DEG; // steps per second
+
+    double min_x_time = abs(dx) / X_MAX_MM_PER_SECOND; // mm / (mm / s) = mm * s / mm = s = seconds
+    double min_y_time = abs(dy) / Y_MAX_MM_PER_SECOND; // mm / (mm / s) = mm * s / mm = s = seconds
+    double min_z_time = abs(dz) / Z_MAX_MM_PER_SECOND; // mm / (mm / s) = mm * s / mm = s = seconds
+    double min_theta_time = abs(dtheta) / THETA_MAX_DEG_PER_SECOND; // deg / (deg / s) = deg * s / deg = s = seconds
+//
+//    Serial.println(min_x_time);
+//    Serial.println(min_y_time);
+//    Serial.println(min_z_time);
+//    Serial.println(min_theta_time);
+
+    time = max(min_x_time, time);
+    time = max(min_y_time, time);
+    time = max(min_z_time, time);
+    time = max(min_theta_time, time);
+
+
+//    Serial.print("calculated time: ");
+//    Serial.println(time);
+
+
+    double x_speed_mm = dx / time; // mm per second
+    double y_speed_mm = dy / time; // mm per second
+    double z_speed_mm = dz / time; // mm per second
+    double theta_speed_mm = dtheta / time; // deg per second
+
+
+    double x_speed_steps = x_speed_mm * X_STEPS_PER_MM; // steps per second
+    double y_speed_steps = y_speed_mm * Y_STEPS_PER_MM; // steps per second
+    double z_speed_steps = z_speed_mm * Z_STEPS_PER_MM; // steps per second
+    double theta_speed_steps = theta_speed_mm * THETA_STEPS_PER_DEG; // steps per second
+
+//    Serial.print("Calculated speed: ");
+//    Serial.println(x_speed_steps);
+
+
+
+    gantry.x1_motor.moveTo(x * X_STEPS_PER_MM);
+    gantry.x2_motor.moveTo(x * X_STEPS_PER_MM);
+    gantry.y_motor.moveTo(y * Y_STEPS_PER_MM);
+    gantry.z_motor.moveTo(z * Z_STEPS_PER_MM);
+    gantry.theta_motor.moveTo(theta * THETA_STEPS_PER_DEG);
 
     gantry.x1_motor.setSpeed(x_speed_steps);
     gantry.x2_motor.setSpeed(x_speed_steps);
@@ -77,44 +102,58 @@ void Command::executeBase(GantryConfiguration gantry) {
 
 
 
+//    Serial.println(String("Time: ") + time);
+//    Serial.println(String("Speed: ") + x_speed_steps);
+
+
+
     unsigned long currentTime = millis();
 
-    // old approach - probably not needed? unsure about this.
 
-//    while (gantry.x1_motor.runSpeedToPosition() &&
-//    gantry.x2_motor.runSpeedToPosition() &&
-//    gantry.y_motor.runSpeedToPosition() &&
-//    gantry.z_motor.runSpeedToPosition() &&
-//    gantry.theta_motor.runSpeedToPosition())
-
-
-    while ((millis() - currentTime) / 1000.0f <= time) {
-        gantry.x1_motor.runSpeedToPosition();
-        gantry.x2_motor.runSpeedToPosition();
-        gantry.y_motor.runSpeedToPosition();
-        gantry.z_motor.runSpeedToPosition();
-        gantry.theta_motor.runSpeedToPosition();
+    while ((millis() - currentTime) / 1000.0f <= (time + BUFFER_TIME)) {
+        if (x_changed) gantry.x1_motor.runSpeedToPosition();
+        if (x_changed) gantry.x2_motor.runSpeedToPosition();
+        if (y_changed) gantry.y_motor.runSpeedToPosition();
+        if (z_changed) gantry.z_motor.runSpeedToPosition();
+        if (theta_changed) gantry.theta_motor.runSpeedToPosition();
+//        Serial.print("current x position: ");
+//        Serial.println(gantry.x1_motor.currentPosition());
     }
+
+
 
     gantry.updatePosition();
 
 
+}
 
-
-
-
-
-
-
+void Command::executeHeadChange(GantryConfiguration &gantry) {
 
 }
 
-void Command::executeHeadChange(GantryConfiguration gantry) {
+void Command::executeSpecial(GantryConfiguration &gantry) {
 
 }
 
-void Command::executeSpecial(GantryConfiguration gantry) {
+boolean Command::isNoCommand() {
+    return this->type == CommandType::NONE;
+}
 
+
+
+String Command::toString() {
+    String s = "{";
+
+
+    if (x_changed) s = s + "X: " + x + " ";
+    if (y_changed) s = s + "Y: " + y + " ";
+    if (z_changed) s = s + "Z: " + z + " ";
+    if (time_changed) s = s + "time: " + time + " ";
+    if (theta_changed) s = s + "theta: " + theta + " ";
+    if (head_1_changed) s = s + "head_1: " + head_1 + " ";
+
+    s = s.substring(0, s.length() - 1) + "}";
+    return s;
 }
 
 

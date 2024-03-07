@@ -8,14 +8,14 @@
 
 struct Position {
 public:
-    float x;
-    float y;
-    float z;
-    float theta;
-    float head_1;
-    float head_2;
-    float head_3;
-    int head;
+    double x = 0;
+    double y = 0;
+    double z = 0;
+    double theta = 0;
+    double head_1 = 0;
+    double head_2 = 0;
+    double head_3 = 0;
+    int head = 0;
 };
 
 

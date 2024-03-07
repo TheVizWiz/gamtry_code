@@ -3,14 +3,18 @@
 //
 
 #include "CommandParser.h"
+#include "Vector.h"
 
 
 Command CommandParser::parse(String input) {
-
-
+    
+    
+//    Serial.println("inside of parse");
+    
     Command command = Command(CommandType::BASE);
     String tokenArray[MAX_TOKENS_PER_COMMAND];
     Vector<String> tokens = Vector<String>(tokenArray);
+    tokens.clear();
     input.trim();
 
     int currentLocation = 0;
@@ -26,7 +30,16 @@ Command CommandParser::parse(String input) {
         }
     }
 
+
+
     tokens.push_back(input);
+
+
+
+//    Serial.println("tokens:");
+//    Serial.println(tokens.size());
+//    for (const auto &item: tokens)
+//        Serial.println(item);
 
     if (tokens.size() == 0) return Command::NO_COMMAND;
 
@@ -35,21 +48,25 @@ Command CommandParser::parse(String input) {
         char commandChar = token[0];
         String amount = token.substring(1);
 
+//        Serial.println(String("command char: ") + commandChar + " amount: " + amount);
+
 
         switch (commandChar) {
 
 
             // check for special command
             case COMMAND_SPECIAL:
-                command.type = CommandType::SPECIAL;
+                command.type = CommandType::SPECIAL_COMMAND;
                 command.special = amount.toInt();
                 return command;
+                break;
 
                 // check for head change command
             case COMMAND_HEAD_CHANGE:
                 command.type = CommandType::HEAD_CHANGE;
                 command.head = amount.toInt();
                 return command;
+                break;
 
 
 
@@ -86,8 +103,15 @@ Command CommandParser::parse(String input) {
                 command.head_3 = amount.toFloat();
                 command.head_3_changed = true;
 
+
+//            default:
+//                Serial.println(String("Command char ") + commandChar + " does not match.");
+
         }
     }
+
+
+//    Serial.print(String("Command in parse: ") + command.toString());
 
     return command;
 }

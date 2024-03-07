@@ -11,11 +11,11 @@ GantryConfiguration::GantryConfiguration() {
     head = Head();
 
 
-    x1_motor = AccelStepper(X1_MOTOR_PINS);
-    x2_motor = AccelStepper(X2_MOTOR_PINS);
-    y_motor = AccelStepper(Y_MOTOR_PINS);
-    z_motor = AccelStepper(Z_MOTOR_PINS);
-    theta_motor = AccelStepper(THETA_MOTOR_PINS);
+    x1_motor = AccelStepper(AccelStepper::DRIVER, X1_MOTOR_PINS);
+    x2_motor = AccelStepper(AccelStepper::DRIVER, X2_MOTOR_PINS);
+    y_motor = AccelStepper(AccelStepper::DRIVER, Y_MOTOR_PINS);
+    z_motor = AccelStepper(AccelStepper::DRIVER, Z_MOTOR_PINS);
+    theta_motor = AccelStepper(AccelStepper::DRIVER, THETA_MOTOR_PINS);
 
     x1_motor.setMaxSpeed(X_MAX_STEPS_PER_SECOND);
     x2_motor.setMaxSpeed(X_MAX_STEPS_PER_SECOND);

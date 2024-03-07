@@ -5,6 +5,7 @@
 #include "CommandQueue.h"
 #include "CommandParser.h"
 
+const String CommandQueue::SERIAL_PING_MESSAGE = "pls send";
 
 
 Command CommandQueue::popNextCommand() {
@@ -40,18 +41,20 @@ Command CommandQueue::queueCommand(long tryMillis) {
         return command;
     }
 
-    commands.push_back(Command::NO_COMMAND);
     return Command::NO_COMMAND;
 }
 
 Command CommandQueue::askSerialForNextCommand() {
 
-    if (!Serial.available())
+    if (!Serial1.available())
         return Command::NO_COMMAND;
 
+    Serial.println("received message.");
 
-    String inputString = Serial.readString();
+    String inputString = Serial1.readString();
 
+    Serial.print("message: ");
+    Serial.println(inputString);
     Command nextCommand = CommandParser::parse(inputString);
     return nextCommand;
 }

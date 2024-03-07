@@ -6,7 +6,7 @@
 #define ARDUINO_CODE_COMMANDQUEUE_H
 
 #include "Command.h"
-
+#include "Vector.h"
 
 class CommandQueue {
 
@@ -25,7 +25,7 @@ public:
 
     /**
      * Tries to queue a single command and polls the
-     * @return
+     * @return The command if queued.
      */
     Command queueCommand();
 
@@ -38,7 +38,7 @@ private:
 
 
     static const int MAX_BUFFERED_COMMANDS = 10;
-    static const int SERIAL_PING_TRY_TIME = 100;
+    static const int SERIAL_PING_TRY_TIME = 1000;
     static const String SERIAL_PING_MESSAGE;
     Command commandArray[MAX_BUFFERED_COMMANDS];
 
@@ -49,7 +49,6 @@ private:
 
 };
 
-const String CommandQueue::SERIAL_PING_MESSAGE = "pls send";
 
 
 #endif //ARDUINO_CODE_COMMANDQUEUE_H

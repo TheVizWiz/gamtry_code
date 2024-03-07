@@ -8,16 +8,18 @@
 
 #include "Position.h"
 #include "Arduino.h"
-#include "Vector.h"
 #include "Gantry.h"
 
 
 enum CommandType {
-    NONE, BASE, HEAD_CHANGE, SPECIAL
+    NONE, BASE, HEAD_CHANGE, SPECIAL_COMMAND
 };
 
 
 struct Command : public Position {
+
+private:
+    constexpr static const float BUFFER_TIME = 0.3f;
 
 
 public:
@@ -30,30 +32,31 @@ public:
 
     Command(CommandType type);
 
-    void execute(GantryConfiguration gantry);
+    void execute(GantryConfiguration &gantry);
 
     boolean isNoCommand();
 
+    String toString();
 
 public:
-    float time;
+    double time = 0;
     unsigned char special;
     boolean
-            time_changed,
-            x_changed,
-            y_changed,
-            z_changed,
-            theta_changed,
-            head_1_changed,
-            head_2_changed,
-            head_3_changed;
+            time_changed = false,
+            x_changed = false,
+            y_changed = false,
+            z_changed = false,
+            theta_changed = false,
+            head_1_changed = false,
+            head_2_changed = false,
+            head_3_changed = false;
 
 private:
-    void executeBase(GantryConfiguration gantry);
-    void executeHeadChange(GantryConfiguration gantry);
-    void executeSpecial(GantryConfiguration gantry);
+    void executeBase(GantryConfiguration &gantry);
+    void executeHeadChange(GantryConfiguration &gantry);
+    void executeSpecial(GantryConfiguration &gantry);
+
 };
 
-const Command Command::NO_COMMAND = Command(CommandType::NONE);
 
 #endif //GAMTRY_CODE_COMMAND_H

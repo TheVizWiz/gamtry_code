@@ -8,8 +8,6 @@
 #include "Command.h"
 
 class CommandParser {
-
-
 public:
     static Command parse(String input);
 
