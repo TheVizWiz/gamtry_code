@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>REMOTE CONTROL</title>
+    <link rel="stylesheet" type="text/css" href="main.css">
+</head>
+
+<body> 
+
+    <header> 
+        <div class = "logo"> 
+            <img src="logo.png" alt = "Logo">
+        </div>
+    </header>
+
+    <div class="graph"> 
+      <img src="graph.png" alt = "Graph"> 
+      <div class="dot" id="dot"></div>
+      <div style="text-align: center; margin-top: 20px;">
+        <label contenteditable="true" id="xSliderLabel">X-Axis: 0</label>
+        <input type="range" min="0" max="400" value="0" class="slider" id="xSlider">
+        <label contenteditable="true" id="ySliderLabel">Y-Axis: 0</label>
+        <input type="range" min="0" max="400" value="0" class="slider" id="ySlider">
+          <div style="text-align: center; margin-top: 20px;">
+            <label for="thetaSlider">Rotating-Base:</label>
+            <input type="range" min="0" max="270" value="0" class="slider" id="thetaSlider">
+
+          </div>
+          <button class="left-btn" onclick="sendPos();">Send Position</button>
+      </div>
+      
+    </div>
+    <div class="container">
+      <button class="left-btn">Auto-Home</button>
+      <button class="left-btn">Manual Control</button>
+      <button class="left-btn">Start Program</button>
+      <button class="left-btn">Start Program</button>
+      <button class="left-btn">Gripper Head</button>
+      <button class="left-btn">Hot Glue Head</button>
+      <button class="left-btn">Stamping Head</button>
+    </div>
+      
+      <script>
+        var connection = new WebSocket('ws://' + location.hostname + ':81/', ['arduino']);
+        connection.onopen = function () {
+        connection.send('Connect ' + new Date());
+        };
+        connection.onerror = function (error) {
+          console.log('WebSocket Error ', error);
+        };
+        connection.onmessage = function (e) {
+          console.log('Server: ', e.data);
+        };
+        connection.onclose = function () {
+          console.log('WebSocket connection closed');
+        };
+
+
+        function sendPos () {
+            var x = document.getElementById('xSlider').value; 
+            connection.send(x); 
+        }
+        const dot = document.getElementById('dot');
+        const xSlider = document.getElementById('xSlider');
+        const ySlider = document.getElementById('ySlider');
+        const thetaSlider = document.getElementById('thetaSlider'); 
+      
+        function updateDotPosition() {
+          const xValue = xSlider.value; // Scale it to match grid width
+          const yValue = ySlider.value; // Scale it to match grid height
+          dot.style.left = `${xValue}%`;
+          dot.style.bottom = `${yValue}%`;
+          xSliderLabel.innerText = `X Axis: ${xSlider.value}`; 
+          ySliderLabel.innerText = `Y Axis: ${ySlider.value}`; 
+        }
+        
+        xSlider.addEventListener('input', updateDotPosition);
+        ySlider.addEventListener('input', updateDotPosition);
+        // Initial position update
+        updateDotPosition();
+      </script>
+
+</body>
+
+</html>
