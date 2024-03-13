@@ -22,17 +22,17 @@ void handleFileUpload();                // upload a new file to the SPIFFS
 void setup() {
   Serial.begin(115200);         // Start the Serial communication to send messages to the computer
   delay(10);
-  //Serial.println('\n');
+//  Serial.println('\n');
 
   wifiMulti.addAP("HomeOffice", "home2453");   // add Wi-Fi networks you want to connect to
   wifiMulti.addAP("Gu_Net", "GaM.try!");
   wifiMulti.addAP("ssid_from_AP_3", "your_password_for_AP_3");
 
-  //Serial.println("Connecting ...");
+//  Serial.println("Connecting ...");
   int i = 0;
   while (wifiMulti.run() != WL_CONNECTED) { // Wait for the Wi-Fi to connect
     delay(1000);
-    //Serial.print(++i); Serial.print(' ');
+    Serial.print(++i); Serial.print(' ');
   }
   //Serial.println('\n');
   //Serial.print("Connected to ");
@@ -137,7 +137,7 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
       //if (payload[0] == '#') {            // we get RGB data
         uint32_t input = (uint32_t) strtol((const char *) &payload[1], NULL, 16); 
         int x = input; 
-        Serial.printf("X%s", payload); 
+        Serial.printf("%s \n", payload); 
       //}
       break;
   }
