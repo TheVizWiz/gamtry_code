@@ -13,7 +13,10 @@
             <img src="logo.png" alt = "Logo">
         </div>
     </header>
-
+    <div style="text-align: center; position: fixed; top: 200px; right: 550px;">
+      <label contenteditable="true" id="zSliderLabel">Z-Axis: 0</label>
+        <input type="range" orient="vertical" min="0" max="400" value="0" class="slider" id="zSlider">
+    </div>
     <div class="graph"> 
       <img src="graph.png" alt = "Graph"> 
       <div class="dot" id="dot"></div>
@@ -23,7 +26,7 @@
         <label contenteditable="true" id="ySliderLabel">Y-Axis: 0</label>
         <input type="range" min="0" max="400" value="0" class="slider" id="ySlider">
           <div style="text-align: center; margin-top: 20px;">
-            <label for="thetaSlider">Rotating-Base:</label>
+            <label contenteditable="true" id="thetaSliderLabel">Rotating Base: 0</label>
             <input type="range" min="0" max="270" value="0" class="slider" id="thetaSlider">
 
           </div>
@@ -35,16 +38,25 @@
       <button class="left-btn">Auto-Home</button>
       <button class="left-btn">Manual Control</button>
       <button class="left-btn">Start Program</button>
-      <button class="left-btn">Start Program</button>
+      <button class="left-btn">Motors Off</button>
       <button class="left-btn">Gripper Head</button>
       <button class="left-btn">Hot Glue Head</button>
       <button class="left-btn">Stamping Head</button>
+    </div>
+    <div class="chat-container">
+      <div class="chat" id="chat-log">
+        <!-- Existing messages will be inserted here dynamically -->
+      </div>
+      <div class="input">
+        <input type="text" id="message-input" placeholder="Type your message...">
+        <button onclick="sendMessage()">Send</button>
+      </div>
     </div>
       
       <script>
         var connection = new WebSocket('ws://' + location.hostname + ':81/', ['arduino']);
         connection.onopen = function () {
-        connection.send('Connect ' + new Date());
+        //connection.send('Connect ' + new Date());
         };
         connection.onerror = function (error) {
           console.log('WebSocket Error ', error);
@@ -59,26 +71,68 @@
 
         function sendPos () {
             var x = document.getElementById('xSlider').value; 
-            connection.send(x); 
+            var xString = x.toString(); 
+            var y = document.getElementById('ySlider').value; 
+            var yString = y.toString(); 
+            var t = document.getElementById('thetaSlider').value; 
+            var tString = t.toString(); 
+            var z = document.getElementById('zSlider').value; 
+            var zString = z.toString(); 
+            var inputString = "X" + xString + " " + "Y" + yString + " " + "Z" + zString + " " + "T" + tString; 
+            connection.send(inputString); 
+            var messageInput = inputString; 
+            //var messageText = messageInput.value.trim();
+                var chatLog = document.getElementById("chat-log");
+                var newMessage = document.createElement("div");
+                newMessage.classList.add("message");
+                newMessage.innerHTML = `
+                  <span class="sender">You:</span>
+                  <div class="text">${messageInput}</div>
+                `;
+                chatLog.appendChild(newMessage);
+                chatLog.scrollTop = chatLog.scrollHeight;
+                messageInput.value = "";
         }
         const dot = document.getElementById('dot');
         const xSlider = document.getElementById('xSlider');
         const ySlider = document.getElementById('ySlider');
         const thetaSlider = document.getElementById('thetaSlider'); 
-      
+        const zSlider = document.getElementById('zSlider'); 
         function updateDotPosition() {
-          const xValue = xSlider.value; // Scale it to match grid width
-          const yValue = ySlider.value; // Scale it to match grid height
+          const xValue = (xSlider.value/400) * 92; // Scale it to match grid width
+          const yValue = ((ySlider.value/400) * 70) + 27; // Scale it to match grid height
           dot.style.left = `${xValue}%`;
           dot.style.bottom = `${yValue}%`;
           xSliderLabel.innerText = `X Axis: ${xSlider.value}`; 
           ySliderLabel.innerText = `Y Axis: ${ySlider.value}`; 
+          thetaSliderLabel.innerText = `Rotating Base: ${thetaSlider.value}`; 
+          zSliderLabel.innerText = `Z Axis: ${zSlider.value}`; 
         }
         
         xSlider.addEventListener('input', updateDotPosition);
         ySlider.addEventListener('input', updateDotPosition);
+        thetaSlider.addEventListener('input', updateDotPosition); 
+        zSlider.addEventListener('input', updateDotPosition); 
         // Initial position update
         updateDotPosition();
+
+        function sendMessage() {
+        var messageInput = document.getElementById("message-input");
+        var messageText = messageInput.value.trim();
+          if (messageText !== "") {
+            var chatLog = document.getElementById("chat-log");
+            var newMessage = document.createElement("div");
+            newMessage.classList.add("message");
+            newMessage.innerHTML = `
+              <span class="sender">You:</span>
+              <div class="text">${messageText}</div>
+            `;
+            chatLog.appendChild(newMessage);
+            chatLog.scrollTop = chatLog.scrollHeight;
+            messageInput.value = "";
+            connection.send(messageText); 
+          }
+        }
       </script>
 
 </body>
