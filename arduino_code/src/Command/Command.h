@@ -7,12 +7,11 @@
 
 
 #include "Position.h"
-#include "Arduino.h"
 #include "Gantry.h"
 
 
 enum CommandType {
-    NONE, BASE, HEAD_CHANGE, SPECIAL_COMMAND
+    NONE, BASE, HEAD_CHANGE, SPECIAL_COMMAND, MACRO
 };
 
 
@@ -26,6 +25,7 @@ public:
 
     static const Command NO_COMMAND;
 
+
     CommandType type;
 
     Command();
@@ -34,13 +34,13 @@ public:
 
     void execute(GantryConfiguration &gantry);
 
-    boolean isNoCommand();
+    boolean isNoCommand() const;
 
     String toString();
 
 public:
     double time = 0;
-    unsigned char special;
+    uint8_t code;
     boolean
             time_changed = false,
             x_changed = false,
@@ -55,8 +55,11 @@ private:
     void executeBase(GantryConfiguration &gantry);
     void executeHeadChange(GantryConfiguration &gantry);
     void executeSpecial(GantryConfiguration &gantry);
+    void executeHoming(GantryConfiguration &gantry);
 
 };
+
+
 
 
 #endif //GAMTRY_CODE_COMMAND_H

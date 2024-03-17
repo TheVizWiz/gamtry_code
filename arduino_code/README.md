@@ -79,7 +79,7 @@ static const char COMMAND_SPECIAL       = 'S';
 
 `HEAD_CHANGE` is used to tell the gantry that the current command is a head changing command. The head to change to is signified by the number portion of the token.
 
-`SPECIAL_COMMAND` is used to tell the gantry that the current command is a special command. Examples of these include homing commands, axis resetting commands, and testing commands.
+`SPECIAL_COMMAND` is used to tell the gantry that the current command is a code command. Examples of these include homing commands, axis resetting commands, and testing commands.
 
 
 

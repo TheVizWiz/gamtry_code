@@ -36,8 +36,11 @@ public:
 
 private:
 
-
-    static const int MAX_BUFFERED_COMMANDS = 10;
+    /**
+     * char used to know if a serial command coming through the ESP (Serial1) is an actual command or just a serial message. Commands that are actual commands will start with the given character, followed by a space, and then the rest of the command.
+     */
+    static const char COMMAND_STARTING_CHAR_ESP = '$';
+    static const int MAX_BUFFERED_COMMANDS = 30;
     static const int SERIAL_PING_TRY_TIME = 1000;
     static const String SERIAL_PING_MESSAGE;
     Command commandArray[MAX_BUFFERED_COMMANDS];

@@ -7,10 +7,10 @@
 
 
 Command CommandParser::parse(String input) {
-    
-    
-//    Serial.println("inside of parse");
-    
+
+
+//    Serial._println("inside of parse");
+
     Command command = Command(CommandType::BASE);
     String tokenArray[MAX_TOKENS_PER_COMMAND];
     Vector<String> tokens = Vector<String>(tokenArray);
@@ -31,15 +31,14 @@ Command CommandParser::parse(String input) {
     }
 
 
-
     tokens.push_back(input);
 
 
 
-//    Serial.println("tokens:");
-//    Serial.println(tokens.size());
+//    Serial._println("tokens:");
+//    Serial._println(tokens.size());
 //    for (const auto &item: tokens)
-//        Serial.println(item);
+//        Serial._println(item);
 
     if (tokens.size() == 0) return Command::NO_COMMAND;
 
@@ -48,27 +47,29 @@ Command CommandParser::parse(String input) {
         char commandChar = token[0];
         String amount = token.substring(1);
 
-//        Serial.println(String("command char: ") + commandChar + " amount: " + amount);
+//        Serial._println(String("command char: ") + commandChar + " amount: " + amount);
 
 
         switch (commandChar) {
 
 
-            // check for special command
+                // check for special command
             case COMMAND_SPECIAL:
                 command.type = CommandType::SPECIAL_COMMAND;
-                command.special = amount.toInt();
+                command.code = amount.toInt();
                 return command;
-                break;
 
                 // check for head change command
             case COMMAND_HEAD_CHANGE:
                 command.type = CommandType::HEAD_CHANGE;
                 command.head = amount.toInt();
                 return command;
-                break;
 
-
+                // check for macro command
+            case COMMAND_MACRO:
+                command.type = CommandType::MACRO;
+                command.code = amount.toInt();
+                return command;
 
                 // all other commands considered base commands
             case COMMAND_TIME:
@@ -105,13 +106,13 @@ Command CommandParser::parse(String input) {
 
 
 //            default:
-//                Serial.println(String("Command char ") + commandChar + " does not match.");
+//                Serial._println(String("Command char ") + commandChar + " does not match.");
 
         }
     }
 
 
-//    Serial.print(String("Command in parse: ") + command.toString());
+    Serial.print(String("Command in parse: ") + command.toString());
 
     return command;
 }

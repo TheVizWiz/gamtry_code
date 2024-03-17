@@ -3,6 +3,7 @@
 //
 
 #include "Command.h"
+#include "CommandParser.h"
 
 
 const Command Command::NO_COMMAND = Command(CommandType::NONE);
@@ -39,9 +40,9 @@ void Command::executeBase(GantryConfiguration &gantry) {
 
 
 //    Serial.print("Gantry x position: ");
-//    Serial.println(gantry.position.x);
+//    Serial._println(gantry.position.x);
 //    Serial.print("Wanted x position: ");
-//    Serial.println(x);
+//    Serial._println(x);
 
 
 
@@ -57,10 +58,10 @@ void Command::executeBase(GantryConfiguration &gantry) {
     double min_z_time = abs(dz) / Z_MAX_MM_PER_SECOND; // mm / (mm / s) = mm * s / mm = s = seconds
     double min_theta_time = abs(dtheta) / THETA_MAX_DEG_PER_SECOND; // deg / (deg / s) = deg * s / deg = s = seconds
 //
-//    Serial.println(min_x_time);
-//    Serial.println(min_y_time);
-//    Serial.println(min_z_time);
-//    Serial.println(min_theta_time);
+//    Serial._println(min_x_time);
+//    Serial._println(min_y_time);
+//    Serial._println(min_z_time);
+//    Serial._println(min_theta_time);
 
     time = max(min_x_time, time);
     time = max(min_y_time, time);
@@ -69,7 +70,7 @@ void Command::executeBase(GantryConfiguration &gantry) {
 
 
 //    Serial.print("calculated time: ");
-//    Serial.println(time);
+//    Serial._println(time);
 
 
     double x_speed_mm = dx / time; // mm per second
@@ -84,7 +85,7 @@ void Command::executeBase(GantryConfiguration &gantry) {
     double theta_speed_steps = theta_speed_mm * THETA_STEPS_PER_DEG; // steps per second
 
 //    Serial.print("Calculated speed: ");
-//    Serial.println(x_speed_steps);
+//    Serial._println(x_speed_steps);
 
 
 
@@ -102,8 +103,8 @@ void Command::executeBase(GantryConfiguration &gantry) {
 
 
 
-//    Serial.println(String("Time: ") + time);
-//    Serial.println(String("Speed: ") + x_speed_steps);
+//    Serial._println(String("Time: ") + time);
+//    Serial._println(String("Speed: ") + x_speed_steps);
 
 
 
@@ -111,19 +112,45 @@ void Command::executeBase(GantryConfiguration &gantry) {
 
 
     while ((millis() - currentTime) / 1000.0f <= (time + BUFFER_TIME)) {
-        if (x_changed) gantry.x1_motor.runSpeedToPosition();
-        if (x_changed) gantry.x2_motor.runSpeedToPosition();
-        if (y_changed) gantry.y_motor.runSpeedToPosition();
-        if (z_changed) gantry.z_motor.runSpeedToPosition();
-        if (theta_changed) gantry.theta_motor.runSpeedToPosition();
-//        Serial.print("current x position: ");
-//        Serial.println(gantry.x1_motor.currentPosition());
+
+        boolean x_outside_limits =
+                (x_speed_steps < 0 && gantry.x1LimitSwitchTriggered()) ||
+                (x_speed_steps < 0 && gantry.x2LimitSwitchTriggered()) ||
+                (x_speed_steps > 0 && gantry.xMaxLimitReached());
+
+        boolean y_outside_limits =
+                (y_speed_steps < 0 && gantry.yLimitSwitchTriggered()) ||
+                (y_speed_steps > 0 && gantry.yMaxLimitReached());
+
+        boolean z_outside_limits =
+                (z_speed_steps < 0 && gantry.zLimitSwitchTriggered()) ||
+                (z_speed_steps > 0 && gantry.zMaxLimitReached());
+
+        boolean theta_outside_limits =
+                (theta_speed_steps < 0 && gantry.thetaLimitSwitchTriggered()) ||
+                (theta_speed_steps > 0 && gantry.thetaMaxLimitReached());
+
+        if (x_outside_limits || y_outside_limits || z_outside_limits || theta_outside_limits) {
+            Serial.println("ERROR: LIMITS EXCEEDED. EXITING MOVEMENT EARLY.");
+            gantry.updatePosition();
+            return;
+        }
+
+
+        if (x_changed)
+            gantry.x1_motor.runSpeedToPosition();
+        if (x_changed)
+            gantry.x2_motor.runSpeedToPosition();
+        if (y_changed)
+            gantry.y_motor.runSpeedToPosition();
+        if (z_changed)
+            gantry.z_motor.runSpeedToPosition();
+        if (theta_changed)
+            gantry.theta_motor.runSpeedToPosition();
+
+
+        gantry.updatePosition();
     }
-
-
-
-    gantry.updatePosition();
-
 
 }
 
@@ -133,13 +160,24 @@ void Command::executeHeadChange(GantryConfiguration &gantry) {
 
 void Command::executeSpecial(GantryConfiguration &gantry) {
 
+    switch (this->code) {
+        case CommandParser::COMMAND_SPECIAL_HOME:
+            executeHoming(gantry);
+            break;
+    }
+
 }
 
-boolean Command::isNoCommand() {
+void Command::executeHoming(GantryConfiguration &gantry) {
+    gantry.homeXAxis();
+//    gantry.homeYAxis();
+//    gantry.homeZAxis();
+//    gantry.homeThetaAxis();
+}
+
+boolean Command::isNoCommand() const {
     return this->type == CommandType::NONE;
 }
-
-
 
 String Command::toString() {
     String s = "{";

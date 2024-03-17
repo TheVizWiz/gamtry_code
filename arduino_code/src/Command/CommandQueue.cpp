@@ -23,15 +23,18 @@ Command CommandQueue::popNextCommand() {
 }
 
 Command CommandQueue::queueCommand() {
-
     return queueCommand(SERIAL_PING_TRY_TIME);
 
 }
 
 Command CommandQueue::queueCommand(long tryMillis) {
+
+    if (commands.size() == MAX_BUFFERED_COMMANDS)
+        return Command::NO_COMMAND;
     uint32_t startMillis = millis();
 
 
+    Serial1.println(SERIAL_PING_MESSAGE);
     Serial.println(SERIAL_PING_MESSAGE);
     while (millis() - startMillis <= tryMillis) {
         Command command = askSerialForNextCommand();
@@ -46,16 +49,30 @@ Command CommandQueue::queueCommand(long tryMillis) {
 
 Command CommandQueue::askSerialForNextCommand() {
 
-    if (!Serial1.available())
+    if (!Serial1.available() && !Serial.available())
         return Command::NO_COMMAND;
 
     Serial.println("received message.");
+    Command nextCommand;
+    String inputString;
 
-    String inputString = Serial1.readString();
+    String computerString = Serial.available() ? Serial.readString() : "";
+    String espString = Serial1.available() ? Serial1.readString() : "";
+
+    if (espString[0] == COMMAND_STARTING_CHAR_ESP) {
+        Serial.println(String("received esp message: ") + espString);
+        inputString = espString.substring(2);
+    } else {
+        inputString = computerString;
+    }
+
+    if (inputString == "")
+        return Command::NO_COMMAND;
+
 
     Serial.print("message: ");
     Serial.println(inputString);
-    Command nextCommand = CommandParser::parse(inputString);
+    nextCommand = CommandParser::parse(inputString);
     return nextCommand;
 }
 
