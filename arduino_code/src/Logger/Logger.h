@@ -15,6 +15,14 @@
 #define LOGGING
 #define LOGGING_TO_SERIAL
 #define LOGGING_TIMESTAMPS
+#define LOGGING_LOGS
+#define LOGGING_WARNINGS
+#define LOGGING_ERRORS
+#define LOGGING_DEBUGS
+#define LOGGING_SERIAL_LOGS
+#define LOGGING_SERIAL_WARNINGS
+#define LOGGING_SERIAL_ERRORS
+#define LOGGING_SERIAL_DEBUGS
 #define LOGGING_CLASS_NAMES
 #define SD_SELECT_PIN 53
 
@@ -27,9 +35,12 @@ class Logger {
 private:
     String className;
 
+    String constructString(const String &s, const String &type);
+
 public:
 
     Logger(String className);
+
     Logger(char *className);
 
     boolean log(const String &s);
@@ -68,6 +79,18 @@ public:
 
     boolean warn(double x);
 
+    boolean debug(const String &s);
+
+    boolean debug(char x);
+
+    boolean debug(int x);
+
+    boolean debug(byte x);
+
+    boolean debug(long x);
+
+    boolean debug(double x);
+
 
 private:
     static File logFile;
@@ -76,9 +99,8 @@ private:
 public:
     static boolean initialize();
 
-    static boolean _println(const String& s);
-
     static String getTimeString();
+
 
 };
 

@@ -4,9 +4,29 @@
 
 #include "CommandParser.h"
 #include "Vector.h"
+#include "Logger/Logger.h"
 
+static Logger logger = Logger("CommandParser");
+static Logger inputLogger = Logger("Input");
 
 Command CommandParser::parse(String input) {
+
+    // send log messages through the serial interface.
+    // This can help to separate messages into segments.
+    if (input.length() >= 2) {
+        String message = input.substring(2);
+        switch (input[0]) {
+            case COMMAND_LOG:
+                inputLogger.log(message);
+                break;
+            case COMMAND_WARN:
+                inputLogger.warn(message);
+                break;
+            case COMMAND_ERR:
+                inputLogger.err(message);
+                break;
+        }
+    }
 
 
 //    Serial._println("inside of parse");
@@ -53,7 +73,7 @@ Command CommandParser::parse(String input) {
         switch (commandChar) {
 
 
-                // check for special command
+            // check for special command
             case COMMAND_SPECIAL:
                 command.type = CommandType::SPECIAL_COMMAND;
                 command.code = amount.toInt();
@@ -104,15 +124,11 @@ Command CommandParser::parse(String input) {
                 command.head_3 = amount.toFloat();
                 command.head_3_changed = true;
 
-
 //            default:
 //                Serial._println(String("Command char ") + commandChar + " does not match.");
 
         }
     }
-
-
-    Serial.print(String("Command in parse: ") + command.toString());
 
     return command;
 }

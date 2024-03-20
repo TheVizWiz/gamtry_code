@@ -85,7 +85,9 @@ struct GantryConfiguration {
 
 public:
 
-    GantryConfiguration();
+    GantryConfiguration() = default;
+
+    boolean initialize();
 
     void updatePosition();
 

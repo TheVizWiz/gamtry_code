@@ -85,23 +85,45 @@ String Logger::getTimeString() {
 
 }
 
-boolean Logger::_println(const String &s) {
-
-#ifdef LOGGING
-
-#ifdef LOGGING_TO_SERIAL
-    Serial.println(s);
+String Logger::constructString(const String &s, const String &type) {
+    String message = "";
+#ifdef LOGGING_TIMESTAMPS
+    message = message + "[" + getTimeString() + "] ";
 #endif
 
-    if (!initSuccess)
-        return false;
-    logFile.println(s);
-    return true;
+    message = message + "(" + type + ") ";
+
+#ifdef LOGGING_CLASS_NAMES
+    message = message + "{" + className + "} ";
 #endif
+
+    message += s;
+
+    return message;
 }
 
+
 boolean Logger::log(const String &s) {
-    return _println("[" + getTimeString() + "] (LOG) {" + className + "} : " + s);
+
+
+#ifndef LOGGING
+    return false;
+#endif
+
+#ifndef LOGGING_LOGS
+    return false;
+#endif
+
+
+    String message = constructString(s, "LOG");
+    logFile.println(message);
+
+#if !(defined(LOGGING_TO_SERIAL) && defined(LOGGING_SERIAL_LOGS))
+    return true;
+#endif
+
+    Serial.println(message);
+    return true;
 }
 
 boolean Logger::log(char x) {
@@ -125,7 +147,24 @@ boolean Logger::log(double x) {
 }
 
 boolean Logger::warn(const String &s) {
-    return _println("[" + getTimeString() + "] (WAR) {" + className + "} : " + s);
+#ifndef LOGGING
+    return false;
+#endif
+
+#ifndef LOGGING_WARNINGS
+    return false;
+#endif
+
+
+    String message = constructString(s, "WAR");
+    logFile.println(message);
+
+#if !(defined(LOGGING_TO_SERIAL) && defined(LOGGING_SERIAL_WARNINGS))
+    return true;
+#endif
+
+    Serial.println(message);
+    return true;
 }
 
 boolean Logger::warn(char x) {
@@ -149,7 +188,25 @@ boolean Logger::warn(double x) {
 }
 
 boolean Logger::err(const String &s) {
-    return _println("[" + getTimeString() + "] (ERR) {" + className + "} : " + s);
+#ifndef LOGGING
+    return false;
+#endif
+
+#ifndef LOGGING_ERRORS
+    return false;
+#endif
+
+
+    String message = constructString(s, "ERR");
+    logFile.println(message);
+
+#if !(defined(LOGGING_TO_SERIAL) && defined(LOGGING_SERIAL_ERRORS))
+    return true;
+#endif
+
+    Serial.println(message);
+    return true;
+
 }
 
 boolean Logger::err(char x) {
@@ -172,12 +229,53 @@ boolean Logger::err(double x) {
     return err(String(x));
 }
 
+boolean Logger::debug(const String &s) {
+#ifndef LOGGING
+    return false;
+#endif
+
+#ifndef LOGGING_DEBUGS
+    return false;
+#endif
+
+
+    String message = constructString(s, "DEB");
+    logFile.println(message);
+
+#if !(defined(LOGGING_TO_SERIAL) && defined(LOGGING_SERIAL_DEBUGS))
+    return true;
+#endif
+
+    Serial.println(message);
+    return true;
+
+}
+
+boolean Logger::debug(char x) {
+    return debug(String(x));
+}
+
+boolean Logger::debug(int x) {
+    return debug(String(x));
+}
+
+boolean Logger::debug(byte x) {
+    return debug(String(x));
+}
+
+boolean Logger::debug(long x) {
+    return debug(String(x));
+}
+
+boolean Logger::debug(double x) {
+    return debug(String(x));
+}
+
 Logger::Logger(String className) {
     this->className = className.c_str();
 }
 
-Logger::Logger(char *className) : Logger(String(className)) {
-}
+Logger::Logger(char *className) : Logger(String(className)) {}
 
 
 

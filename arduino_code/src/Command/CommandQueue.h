@@ -47,7 +47,7 @@ private:
 
 private:
 
-    Command askSerialForNextCommand();
+    static Command askSerialForNextCommand();
 
 
 };

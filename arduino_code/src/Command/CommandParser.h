@@ -29,6 +29,10 @@ private: //static variables
     static const char COMMAND_SPECIAL = 'S';
     static const char COMMAND_MACRO = 'M';
 
+    static const char COMMAND_LOG = 'L';
+    static const char COMMAND_WARN = 'W';
+    static const char COMMAND_ERR = 'E';
+
 
 
     static const int MAX_TOKENS_PER_COMMAND = 10;

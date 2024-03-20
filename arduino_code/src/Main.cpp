@@ -6,8 +6,8 @@
 #include "Logger/Logger.h"
 
 //
-CommandQueue queue = CommandQueue();
-GantryConfiguration gantry = GantryConfiguration();
+CommandQueue queue;
+GantryConfiguration gantry;
 
 
 #define STEPS_PER_SECOND 180
@@ -27,6 +27,11 @@ void setup() {
     Serial1.begin(115200);
     Serial1.setTimeout(10);
     Logger::initialize();
+    gantry.initialize();
+
+
+    gantry = GantryConfiguration();
+    queue = CommandQueue();
 
 
     for (int i = 0; i < 10; i++) {
@@ -69,27 +74,6 @@ void setup() {
 //    queue.commands.push_back(CommandParser::parse("T0 X0"));
 //    queue.commands.push_back(CommandParser::parse("T-90 X-200"));
 //    queue.commands.push_back(CommandParser::parse("T0 X0"));
-//
-//
-    delay(5000);
-
-
-//    for (int i = 0; i < 10; i++) {
-//        Command command = queue.popNextCommand();
-//
-//
-//        if (command.isNoCommand())
-//            return;
-//
-//
-////    Serial._println(command.toString());
-//
-//        command.execute(gantry);
-//        delay(500);
-//    }
-
-
-    gantry.homeXAxis();
 
 }
 

@@ -4,20 +4,30 @@
 
 #include "CommandQueue.h"
 #include "CommandParser.h"
+#include "Logger/Logger.h"
+
 
 const String CommandQueue::SERIAL_PING_MESSAGE = "pls send";
 
+static Logger logger = Logger("CommandQueue");
+
 
 Command CommandQueue::popNextCommand() {
+
 
     // no command exists, so tell it not to do anything
     if (commands.empty()) {
         return Command::NO_COMMAND;
     }
 
+    typeid(logger);
+
+
 
     Command command = commands.front();
-
+    
+//    Serial.println(#commands);
+    
     commands.remove(0);
     return command;
 }
@@ -52,7 +62,7 @@ Command CommandQueue::askSerialForNextCommand() {
     if (!Serial1.available() && !Serial.available())
         return Command::NO_COMMAND;
 
-    Serial.println("received message.");
+    logger.log("Message received through serial.");\
     Command nextCommand;
     String inputString;
 
