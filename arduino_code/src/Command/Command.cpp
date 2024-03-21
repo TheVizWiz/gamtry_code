@@ -4,10 +4,12 @@
 
 #include "Command.h"
 #include "CommandParser.h"
+#include "Logger/Logger.h"
 
 
 const Command Command::NO_COMMAND = Command(CommandType::NONE);
 
+static Logger logger = Logger("Command");
 
 Command::Command() {
 
@@ -18,8 +20,10 @@ Command::Command(CommandType type) : Command() {
 }
 
 void Command::execute(GantryConfiguration &gantry) {
-    switch (this->type) {
 
+    logger.log(String("Running new command. Command: ") + toString());
+
+    switch (this->type) {
         case NONE:
             break;
         case BASE:
@@ -30,6 +34,8 @@ void Command::execute(GantryConfiguration &gantry) {
             break;
         case SPECIAL_COMMAND:
             executeSpecial(gantry);
+            break;
+        case MACRO:
             break;
     }
 }
@@ -43,7 +49,7 @@ void Command::executeBase(GantryConfiguration &gantry) {
 //    Serial._println(gantry.position.x);
 //    Serial.print("Wanted x position: ");
 //    Serial._println(x);
-
+    logger.log("Executing base command.");
 
 
     double dx = x_changed ? (x - gantry.position.x) : 0; // mm
@@ -68,6 +74,8 @@ void Command::executeBase(GantryConfiguration &gantry) {
     time = max(min_z_time, time);
     time = max(min_theta_time, time);
 
+    logger.log(String("time for total movement:") + time);
+
 
 //    Serial.print("calculated time: ");
 //    Serial._println(time);
@@ -87,19 +95,36 @@ void Command::executeBase(GantryConfiguration &gantry) {
 //    Serial.print("Calculated speed: ");
 //    Serial._println(x_speed_steps);
 
+    if (x_changed) {
+        gantry.x1_motor.moveTo(x * X_STEPS_PER_MM);
+        gantry.x2_motor.moveTo(x * X_STEPS_PER_MM);
+        gantry.x1_motor.setSpeed(x_speed_steps);
+        gantry.x2_motor.setSpeed(x_speed_steps);
+    }
 
 
-    gantry.x1_motor.moveTo(x * X_STEPS_PER_MM);
-    gantry.x2_motor.moveTo(x * X_STEPS_PER_MM);
-    gantry.y_motor.moveTo(y * Y_STEPS_PER_MM);
-    gantry.z_motor.moveTo(z * Z_STEPS_PER_MM);
-    gantry.theta_motor.moveTo(theta * THETA_STEPS_PER_DEG);
+    if (y_changed) {
+        gantry.y_motor.moveTo(y * Y_STEPS_PER_MM);
+        gantry.y_motor.setSpeed(y_speed_steps);
+    }
 
-    gantry.x1_motor.setSpeed(x_speed_steps);
-    gantry.x2_motor.setSpeed(x_speed_steps);
-    gantry.y_motor.setSpeed(y_speed_steps);
-    gantry.z_motor.setSpeed(z_speed_steps);
-    gantry.theta_motor.setSpeed(theta_speed_steps);
+    if (z_changed) {
+        gantry.z_motor.moveTo(z * Z_STEPS_PER_MM);
+        gantry.z_motor.setSpeed(z_speed_steps);
+    }
+
+    if (theta_changed) {
+        gantry.theta_motor.moveTo(theta * THETA_STEPS_PER_DEG);
+        gantry.theta_motor.setSpeed(theta_speed_steps);
+    }
+
+
+    long x_wanted = x * X_STEPS_PER_MM;
+    long y_wanted = y * Y_STEPS_PER_MM;
+    long z_wanted = z * Z_STEPS_PER_MM;
+    long theta_wanted = theta * THETA_STEPS_PER_DEG;
+
+
 
 
 
@@ -111,7 +136,23 @@ void Command::executeBase(GantryConfiguration &gantry) {
     unsigned long currentTime = millis();
 
 
-    while ((millis() - currentTime) / 1000.0f <= (time + BUFFER_TIME)) {
+    while (true) {
+
+
+        boolean x_finished = !x_changed ||
+                             (gantry.x1_motor.currentPosition() == x_wanted &&
+                              gantry.x2_motor.currentPosition() == x_wanted);
+        boolean y_finished = !y_changed ||
+                             gantry.y_motor.currentPosition() == y_wanted;
+        boolean z_finished = !z_changed ||
+                             gantry.z_motor.currentPosition() == z_wanted;
+        boolean theta_finished = !theta_changed ||
+                                 gantry.theta_motor.currentPosition() == theta_wanted;
+
+
+        if (x_finished && y_finished && z_finished && theta_finished)
+            break;
+
 
         boolean x_outside_limits =
                 (x_speed_steps < 0 && gantry.x1LimitSwitchTriggered()) ||
@@ -131,7 +172,7 @@ void Command::executeBase(GantryConfiguration &gantry) {
                 (theta_speed_steps > 0 && gantry.thetaMaxLimitReached());
 
         if (x_outside_limits || y_outside_limits || z_outside_limits || theta_outside_limits) {
-            Serial.println("ERROR: LIMITS EXCEEDED. EXITING MOVEMENT EARLY.");
+            logger.err("Limits exceeded. Exiting base movement loop early.");
             gantry.updatePosition();
             return;
         }
@@ -152,9 +193,12 @@ void Command::executeBase(GantryConfiguration &gantry) {
         gantry.updatePosition();
     }
 
+    logger.log("Successfully executed base command.");
+
 }
 
 void Command::executeHeadChange(GantryConfiguration &gantry) {
+
 
 }
 

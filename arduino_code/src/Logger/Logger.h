@@ -15,10 +15,10 @@
 #define LOGGING
 #define LOGGING_TO_SERIAL
 #define LOGGING_TIMESTAMPS
-#define LOGGING_LOGS
-#define LOGGING_WARNINGS
-#define LOGGING_ERRORS
-#define LOGGING_DEBUGS
+#define LOGGING_SD_LOGS
+#define LOGGING_SD_WARNINGS
+#define LOGGING_SD_ERRORS
+#define LOGGING_SD_DEBUGS
 #define LOGGING_SERIAL_LOGS
 #define LOGGING_SERIAL_WARNINGS
 #define LOGGING_SERIAL_ERRORS
@@ -100,7 +100,6 @@ public:
     static boolean initialize();
 
     static String getTimeString();
-
 
 };
 

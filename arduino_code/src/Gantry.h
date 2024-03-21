@@ -9,15 +9,16 @@
 #include "AccelStepper.h"
 
 
+
+
 #define X1_MOTOR_PINS 24, 22
 #define X2_MOTOR_PINS 28, 26
 #define Y_MOTOR_PINS 25, 23
 #define Z_MOTOR_PINS 29, 27
 #define THETA_MOTOR_PINS 37, 35
 
-
 #define X_MICROSTEPS 4
-#define Y_MICROSTEPS 1
+#define Y_MICROSTEPS 4
 #define Z_MICROSTEPS 4
 #define THETA_MICROSTEPS 1
 
@@ -43,13 +44,13 @@
 #define Z_MAX_MM_PER_SECOND (Z_MAX_STEPS_PER_SECOND * Z_MM_PER_STEP)
 #define THETA_MAX_DEG_PER_SECOND (THETA_MAX_STEPS_PER_SECOND * THETA_DEG_PER_STEP)
 
-#define X_ZEROING_STEPS_PER_SECOND (X_MAX_STEPS_PER_SECOND / 8)
-#define Y_ZEROING_STEPS_PER_SECOND (X_MAX_STEPS_PER_SECOND / 8)
-#define Z_ZEROING_STEPS_PER_SECOND (X_MAX_STEPS_PER_SECOND / 8)
-#define THETA_ZEROING_STEPS_PER_SECOND (X_MAX_STEPS_PER_SECOND / 8)
+#define X_ZEROING_STEPS_PER_SECOND (X_MAX_STEPS_PER_SECOND / 4)
+#define Y_ZEROING_STEPS_PER_SECOND (X_MAX_STEPS_PER_SECOND / 4)
+#define Z_ZEROING_STEPS_PER_SECOND (X_MAX_STEPS_PER_SECOND / 4)
+#define THETA_ZEROING_STEPS_PER_SECOND (X_MAX_STEPS_PER_SECOND / 4)
 
 #define MAX_X_MM 400.0
-#define MAX_Y_MM 300.0
+#define MAX_Y_MM 450.0
 #define MAX_Z_MM 80.0
 #define MAX_THETA_DEG 270.0
 
@@ -61,11 +62,12 @@
 
 #define LIMIT_SWITCH_NORMALLY_CLOSED true
 
-#define X1_LIMIT_SWITCH_PIN 8
-#define X2_LIMIT_SWITCH_PIN 9
-#define Y_LIMIT_SWITCH_PIN 10
-#define Z_LIMIT_SWITCH_PIN 11
-#define THETA_LIMIT_SWITCH_PIN 12
+#define MASTER_LIMIT_SWITCH 8
+#define X1_LIMIT_SWITCH_PIN 9
+#define X2_LIMIT_SWITCH_PIN 10
+#define Y_LIMIT_SWITCH_PIN 11
+#define Z_LIMIT_SWITCH_PIN 12
+#define THETA_LIMIT_SWITCH_PIN 13
 
 
 class Head {
@@ -102,6 +104,8 @@ public:
     boolean yLimitSwitchTriggered();
     boolean zLimitSwitchTriggered();
     boolean thetaLimitSwitchTriggered();
+    boolean masterLimitSwitchTriggered();
+
 
     boolean xMaxLimitReached();
     boolean yMaxLimitReached();

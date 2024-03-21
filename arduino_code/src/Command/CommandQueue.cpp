@@ -14,20 +14,20 @@ static Logger logger = Logger("CommandQueue");
 
 Command CommandQueue::popNextCommand() {
 
+    logger.log("Getting next command in list...");
 
     // no command exists, so tell it not to do anything
     if (commands.empty()) {
+        logger.log("No command in list. Returning No Command.");
         return Command::NO_COMMAND;
     }
 
-    typeid(logger);
-
-
 
     Command command = commands.front();
-    
+
 //    Serial.println(#commands);
-    
+
+    logger.log(String("Command found. Command: ") + commands[0].toString());
     commands.remove(0);
     return command;
 }
@@ -45,7 +45,7 @@ Command CommandQueue::queueCommand(long tryMillis) {
 
 
     Serial1.println(SERIAL_PING_MESSAGE);
-    Serial.println(SERIAL_PING_MESSAGE);
+//    Serial.println(SERIAL_PING_MESSAGE);
     while (millis() - startMillis <= tryMillis) {
         Command command = askSerialForNextCommand();
         if (command.isNoCommand())
@@ -62,7 +62,7 @@ Command CommandQueue::askSerialForNextCommand() {
     if (!Serial1.available() && !Serial.available())
         return Command::NO_COMMAND;
 
-    logger.log("Message received through serial.");\
+    logger.log("Message received through serial.");
     Command nextCommand;
     String inputString;
 
@@ -70,18 +70,19 @@ Command CommandQueue::askSerialForNextCommand() {
     String espString = Serial1.available() ? Serial1.readString() : "";
 
     if (espString[0] == COMMAND_STARTING_CHAR_ESP) {
-        Serial.println(String("received esp message: ") + espString);
         inputString = espString.substring(2);
+        logger.log("ESP Command received. Message: " + inputString);
     } else {
         inputString = computerString;
+        logger.log("Computer/Serial Command received. Message: " + inputString);
     }
 
-    if (inputString == "")
+    if (inputString == "") {
+        logger.warn("Empty input string, assuming faulty input and returning no command.");
         return Command::NO_COMMAND;
+    }
 
 
-    Serial.print("message: ");
-    Serial.println(inputString);
     nextCommand = CommandParser::parse(inputString);
     return nextCommand;
 }

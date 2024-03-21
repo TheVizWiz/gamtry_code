@@ -6,8 +6,8 @@
 #include "Logger/Logger.h"
 
 //
-CommandQueue queue;
-GantryConfiguration gantry;
+CommandQueue queue = CommandQueue();
+GantryConfiguration gantry = GantryConfiguration();
 
 
 #define STEPS_PER_SECOND 180
@@ -29,16 +29,6 @@ void setup() {
     Logger::initialize();
     gantry.initialize();
 
-
-    gantry = GantryConfiguration();
-    queue = CommandQueue();
-
-
-    for (int i = 0; i < 10; i++) {
-        logger.log(i);
-        logger.warn(i * PI);
-        logger.err(i + String("test"))  ;
-    }
 
 
 
@@ -74,12 +64,14 @@ void setup() {
 //    queue.commands.push_back(CommandParser::parse("T0 X0"));
 //    queue.commands.push_back(CommandParser::parse("T-90 X-200"));
 //    queue.commands.push_back(CommandParser::parse("T0 X0"));
+    delay(2500);
+    gantry.homeYAxis();
 
 }
 
 void loop() {
-//    Test::testLimitSwitches(gantry);
-//    return;
+    Test::testLimitSwitches(gantry);
+    return;
 
 
 

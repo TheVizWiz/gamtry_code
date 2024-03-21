@@ -74,8 +74,8 @@ String Logger::getTimeString() {
         minsString = '0' + minsString;
     while (secsString.length() < 2)
         secsString = '0' + secsString;
-    while (millisString.length() < 2)
-        millisString = '0' + millisString;
+    while (millisString.length() < 3)
+        millisString = millisString + '0';
 
     String timeString = hoursString + ":" +
                         minsString + ":" +
@@ -110,15 +110,18 @@ boolean Logger::log(const String &s) {
     return false;
 #endif
 
-#ifndef LOGGING_LOGS
-    return false;
-#endif
-
 
     String message = constructString(s, "LOG");
-    logFile.println(message);
 
-#if !(defined(LOGGING_TO_SERIAL) && defined(LOGGING_SERIAL_LOGS))
+#ifndef LOGGING_SD_LOGS
+    logFile.println(message);
+#endif
+
+#ifndef LOGGING_TO_SERIAL
+    return true;
+#endif
+
+#ifndef LOGGING_SERIAL_LOGS
     return true;
 #endif
 
@@ -151,15 +154,18 @@ boolean Logger::warn(const String &s) {
     return false;
 #endif
 
-#ifndef LOGGING_WARNINGS
-    return false;
-#endif
-
 
     String message = constructString(s, "WAR");
-    logFile.println(message);
 
-#if !(defined(LOGGING_TO_SERIAL) && defined(LOGGING_SERIAL_WARNINGS))
+#ifndef LOGGING_SD_WARNINGS
+    logFile.println(message);
+#endif
+
+#ifndef LOGGING_TO_SERIAL
+    return true;
+#endif
+
+#ifndef LOGGING_SERIAL_WARNINGS
     return true;
 #endif
 
@@ -192,20 +198,24 @@ boolean Logger::err(const String &s) {
     return false;
 #endif
 
-#ifndef LOGGING_ERRORS
-    return false;
-#endif
-
 
     String message = constructString(s, "ERR");
-    logFile.println(message);
 
-#if !(defined(LOGGING_TO_SERIAL) && defined(LOGGING_SERIAL_ERRORS))
+#ifndef LOGGING_SD_ERRORS
+    logFile.println(message);
+#endif
+
+#ifndef LOGGING_TO_SERIAL
+    return true;
+#endif
+
+#ifndef LOGGING_SERIAL_ERRORS
     return true;
 #endif
 
     Serial.println(message);
     return true;
+
 
 }
 
@@ -234,20 +244,24 @@ boolean Logger::debug(const String &s) {
     return false;
 #endif
 
-#ifndef LOGGING_DEBUGS
-    return false;
-#endif
-
 
     String message = constructString(s, "DEB");
-    logFile.println(message);
 
-#if !(defined(LOGGING_TO_SERIAL) && defined(LOGGING_SERIAL_DEBUGS))
+#ifndef LOGGING_SD_DEBUGS
+    logFile.println(message);
+#endif
+
+#ifndef LOGGING_TO_SERIAL
+    return true;
+#endif
+
+#ifndef LOGGING_SERIAL_DEBUGS
     return true;
 #endif
 
     Serial.println(message);
     return true;
+
 
 }
 

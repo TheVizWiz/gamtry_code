@@ -106,7 +106,7 @@ void GantryConfiguration::homeYAxis() {
 
 
     logger.log("HIT Y AXIS SWITCH. Moving Y Axis back...");
-    logger.log(Y_ZEROING_STEPS_PER_SECOND);
+    y_motor.setSpeed(Y_ZEROING_STEPS_PER_SECOND);
     unsigned long currentTime = millis();
     while (millis() <= currentTime + 1000) {
         y_motor.runSpeed();
@@ -183,23 +183,28 @@ void GantryConfiguration::homeThetaAxis() {
 }
 
 boolean GantryConfiguration::x1LimitSwitchTriggered() {
-    return !digitalRead(X1_LIMIT_SWITCH_PIN);
+    return digitalRead(X1_LIMIT_SWITCH_PIN);
 }
 
 boolean GantryConfiguration::x2LimitSwitchTriggered() {
-    return !digitalRead(X2_LIMIT_SWITCH_PIN);
+    return digitalRead(X2_LIMIT_SWITCH_PIN);
 }
 
 boolean GantryConfiguration::yLimitSwitchTriggered() {
-    return !digitalRead(Y_LIMIT_SWITCH_PIN);
+    return digitalRead(Y_LIMIT_SWITCH_PIN);
 }
 
 boolean GantryConfiguration::zLimitSwitchTriggered() {
-    return !digitalRead(Z_LIMIT_SWITCH_PIN);
+    return digitalRead(Z_LIMIT_SWITCH_PIN);
 }
 
 boolean GantryConfiguration::thetaLimitSwitchTriggered() {
-    return !digitalRead(THETA_LIMIT_SWITCH_PIN);
+    return digitalRead(THETA_LIMIT_SWITCH_PIN);
+}
+
+
+boolean GantryConfiguration::masterLimitSwitchTriggered() {
+    return digitalRead(MASTER_LIMIT_SWITCH);
 }
 
 boolean GantryConfiguration::xMaxLimitReached() {
