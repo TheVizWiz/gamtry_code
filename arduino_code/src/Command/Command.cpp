@@ -37,6 +37,9 @@ void Command::execute(GantryConfiguration &gantry) {
             break;
         case MACRO:
             break;
+        case GRIPPER_COMMAND: 
+            executeGripper(gantry); 
+            break; 
     }
 }
 
@@ -241,6 +244,15 @@ void Command::executeHoming(GantryConfiguration &gantry) {
     gantry.homeZAxis();
 //    gantry.homeThetaAxis();
 }
+
+void Command::executeGripper(GantryConfiguration &gantry) {
+    logger.log("Executing gripper command.");
+
+    g = max(min(g, MAX_G), 0);
+    gantry.gripperServo.write(g); 
+    delay(15); 
+}
+
 
 boolean Command::isNoCommand() const {
     return this->type == CommandType::NONE;

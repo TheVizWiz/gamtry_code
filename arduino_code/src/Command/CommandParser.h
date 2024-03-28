@@ -37,6 +37,8 @@ private: //static variables
     static const char COMMAND_WARN = 'W';
     static const char COMMAND_ERR = 'E';
 
+    static const char COMMAND_G = 'G'; 
+
 
 
     static const int MAX_TOKENS_PER_COMMAND = 10;

@@ -62,6 +62,8 @@ boolean GantryConfiguration::initialize() {
     pinMode(Y_LIMIT_SWITCH_PIN, INPUT_PULLUP);
     pinMode(Z_LIMIT_SWITCH_PIN, INPUT_PULLUP);
     pinMode(THETA_LIMIT_SWITCH_PIN, INPUT_PULLUP);
+    
+    gripperServo.attach(GRIPPER_PIN); 
 
 #ifdef LIMIT_SWITCH_INTERRUPTS
     attachInterrupt(digitalPinToInterrupt(X1_LIMIT_SWITCH_PIN), clickX1, CHANGE);

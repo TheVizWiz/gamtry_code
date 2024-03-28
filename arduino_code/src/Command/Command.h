@@ -11,7 +11,7 @@
 
 
 enum CommandType {
-    NONE, BASE, HEAD_CHANGE, SPECIAL_COMMAND, MACRO
+    NONE, BASE, HEAD_CHANGE, SPECIAL_COMMAND, MACRO, GRIPPER_COMMAND
 };
 
 
@@ -56,6 +56,7 @@ private:
     void executeHeadChange(GantryConfiguration &gantry);
     void executeSpecial(GantryConfiguration &gantry);
     void executeHoming(GantryConfiguration &gantry);
+    void executeGripper(GantryConfiguration &gantry); 
 
 };
 

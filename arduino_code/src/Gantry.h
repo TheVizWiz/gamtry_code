@@ -7,7 +7,7 @@
 
 #include "Position.h"
 #include "AccelStepper.h"
-
+#include "Servo.h"
 
 
 
@@ -16,6 +16,8 @@
 #define Y_MOTOR_PINS 25, 23
 #define Z_MOTOR_PINS 29, 27
 #define THETA_MOTOR_PINS 37, 35
+
+#define GRIPPER_PIN 10 
 
 #define X_MICROSTEPS 8
 #define Y_MICROSTEPS 8
@@ -60,6 +62,7 @@
 #define MAX_Z_MM 155.0
 #define MAX_THETA_DEG 270.0
 
+#define MAX_G 180.0
 
 #define HEAD_PIN_1
 #define HEAD_PIN_2
@@ -101,6 +104,8 @@ struct GantryConfiguration {
             y_motor,
             z_motor,
             theta_motor;
+
+    Servo gripperServo; 
 
 public:
 

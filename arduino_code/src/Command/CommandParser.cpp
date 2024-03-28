@@ -123,6 +123,10 @@ Command CommandParser::parse(String input) {
             case COMMAND_HEAD_3:
                 command.head_3 = amount.toFloat();
                 command.head_3_changed = true;
+            case COMMAND_G: 
+                command.type = CommandType::GRIPPER_COMMAND; 
+                command.g = amount.toFloat(); 
+
 
 //            default:
 //                Serial._println(String("Command char ") + commandChar + " does not match.");

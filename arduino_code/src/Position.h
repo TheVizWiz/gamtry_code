@@ -16,6 +16,7 @@ public:
     double head_2 = 0;
     double head_3 = 0;
     int head = 0;
+    double g = 0; 
 };
 
 
