@@ -12,16 +12,16 @@ void Test::testLimitSwitches(GantryConfiguration &gantry) {
     s += "x1: ";
     s += gantry.x1LimitSwitchTriggered() ? 1 : 0;
 
-    s += "x2: ";
+    s += " x2: ";
     s += gantry.x2LimitSwitchTriggered() ? 1 : 0;
 
-    s += "y: ";
+    s += " y: ";
     s += gantry.yLimitSwitchTriggered() ? 1 : 0;
 
-    s += "z: ";
+    s += " z: ";
     s += gantry.zLimitSwitchTriggered() ? 1 : 0;
 
-    s += "t: ";
+    s += " t: ";
     s += gantry.thetaLimitSwitchTriggered() ? 1 : 0;
 
 

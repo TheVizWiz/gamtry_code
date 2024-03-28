@@ -64,9 +64,51 @@ void setup() {
 //    queue.commands.push_back(CommandParser::parse("T0 X0"));
 //    queue.commands.push_back(CommandParser::parse("T-90 X-200"));
 //    queue.commands.push_back(CommandParser::parse("T0 X0"));
-    delay(2500);
-    gantry.homeYAxis();
+    delay(5000);
+//    gantry.homeZAxis();
+//    CommandParser::parse("Z90").execute(gantry);
+//    gantry.homeXAxis();
+//    gantry.homeYAxis();
+//    delay(2000);
+//    CommandParser::parse("X443 Y214").execute(gantry);
+//    CommandParser::parse(("Z75")).execute(gantry);
 
+
+//    CommandParser::parse("S0").execute(gantry);
+//    CommandParser::parse("X200 Y400 Z20").execute(gantry);
+//    delay(5000);
+//
+//
+//    CommandParser::parse("Z75").execute(gantry);
+//    CommandParser::parse("X391.5 Y210").execute(gantry);
+//    CommandParser::parse("Z37.5").execute(gantry);
+//    CommandParser::parse("Z42").execute(gantry);
+//    CommandParser::parse("X300").execute(gantry);
+//    CommandParser::parse("X200 Y400 Z20").execute(gantry);
+//
+//    delay(5000);
+//
+//    CommandParser::parse("Z42").execute(gantry);
+//    CommandParser::parse("X350 Y210").execute(gantry);
+//    CommandParser::parse("X392").execute(gantry);
+//    CommandParser::parse("Z27").execute(gantry);
+//    CommandParser::parse("X330").execute(gantry);
+//    CommandParser::parse("X200 Y400 Z20").execute(gantry);
+
+//    REMOVAL SEQUENCE
+//    Z75
+//    X394 Y206
+//    Z37.5
+//    Z42
+//    X350
+//
+//
+//    TRAY DOCKING SEQUENCE
+//    Z42
+//    X350 Y206
+//    X395 t2
+//    Z27
+//    X330 t2
 }
 
 void loop() {

@@ -51,6 +51,11 @@ void Command::executeBase(GantryConfiguration &gantry) {
 //    Serial._println(x);
     logger.log("Executing base command.");
 
+    x = max(min(x, MAX_X_MM), 0);
+    y = max(min(y, MAX_Y_MM), 0);
+    z = max(min(z, MAX_Z_MM), 0);
+    theta = max(min(theta, MAX_THETA_DEG), 0);
+
 
     double dx = x_changed ? (x - gantry.position.x) : 0; // mm
     double dy = y_changed ? (y - gantry.position.y) : 0; // mm
@@ -155,20 +160,20 @@ void Command::executeBase(GantryConfiguration &gantry) {
 
 
         boolean x_outside_limits =
-                (x_speed_steps < 0 && gantry.x1LimitSwitchTriggered()) ||
-                (x_speed_steps < 0 && gantry.x2LimitSwitchTriggered()) ||
+                (x_speed_steps < 0 && x < 0 && gantry.x1LimitSwitchTriggered()) ||
+                (x_speed_steps < 0 && x < 0 && gantry.x2LimitSwitchTriggered()) ||
                 (x_speed_steps > 0 && gantry.xMaxLimitReached());
 
         boolean y_outside_limits =
-                (y_speed_steps < 0 && gantry.yLimitSwitchTriggered()) ||
+                (y_speed_steps < 0 && y < 0 && gantry.yLimitSwitchTriggered()) ||
                 (y_speed_steps > 0 && gantry.yMaxLimitReached());
 
         boolean z_outside_limits =
-                (z_speed_steps < 0 && gantry.zLimitSwitchTriggered()) ||
+                (z_speed_steps < 0 && z < 0 && gantry.zLimitSwitchTriggered()) ||
                 (z_speed_steps > 0 && gantry.zMaxLimitReached());
 
         boolean theta_outside_limits =
-                (theta_speed_steps < 0 && gantry.thetaLimitSwitchTriggered()) ||
+                (theta_speed_steps < 0 && theta < 0 && gantry.thetaLimitSwitchTriggered()) ||
                 (theta_speed_steps > 0 && gantry.thetaMaxLimitReached());
 
         if (x_outside_limits || y_outside_limits || z_outside_limits || theta_outside_limits) {
@@ -183,7 +188,7 @@ void Command::executeBase(GantryConfiguration &gantry) {
         if (x_changed)
             gantry.x2_motor.runSpeedToPosition();
         if (y_changed)
-            gantry.y_motor.runSpeedToPosition();
+            gantry.y_motor.run();
         if (z_changed)
             gantry.z_motor.runSpeedToPosition();
         if (theta_changed)
@@ -192,6 +197,12 @@ void Command::executeBase(GantryConfiguration &gantry) {
 
         gantry.updatePosition();
     }
+
+    gantry.x1_motor.setSpeed(0);
+    gantry.x2_motor.setSpeed(0);
+    gantry.y_motor.setSpeed(0);
+    gantry.z_motor.setSpeed(0);
+    gantry.theta_motor.setSpeed(0);
 
     logger.log("Successfully executed base command.");
 
@@ -208,14 +219,26 @@ void Command::executeSpecial(GantryConfiguration &gantry) {
         case CommandParser::COMMAND_SPECIAL_HOME:
             executeHoming(gantry);
             break;
+        case CommandParser::COMMAND_SPECIAL_HOME_X:
+            gantry.homeXAxis();
+            break;
+        case CommandParser::COMMAND_SPECIAL_HOME_Y:
+            gantry.homeYAxis();
+            break;
+        case CommandParser::COMMAND_SPECIAL_HOME_Z:
+            gantry.homeZAxis();
+            break;
+        case CommandParser::COMMAND_SPECIAL_HOME_THETA:
+            gantry.homeThetaAxis();
+            break;
     }
 
 }
 
 void Command::executeHoming(GantryConfiguration &gantry) {
     gantry.homeXAxis();
-//    gantry.homeYAxis();
-//    gantry.homeZAxis();
+    gantry.homeYAxis();
+    gantry.homeZAxis();
 //    gantry.homeThetaAxis();
 }
 
@@ -224,18 +247,38 @@ boolean Command::isNoCommand() const {
 }
 
 String Command::toString() {
-    String s = "{";
 
+    String s;
 
-    if (x_changed) s = s + "X: " + x + " ";
-    if (y_changed) s = s + "Y: " + y + " ";
-    if (z_changed) s = s + "Z: " + z + " ";
-    if (time_changed) s = s + "time: " + time + " ";
-    if (theta_changed) s = s + "theta: " + theta + " ";
-    if (head_1_changed) s = s + "head_1: " + head_1 + " ";
+    switch (type) {
 
-    s = s.substring(0, s.length() - 1) + "}";
-    return s;
+        case NONE:
+            return "{NO_COMMAND}";
+            break;
+        case BASE:
+            s = "{";
+
+            if (x_changed) s = s + "X: " + x + " ";
+            if (y_changed) s = s + "Y: " + y + " ";
+            if (z_changed) s = s + "Z: " + z + " ";
+            if (time_changed) s = s + "time: " + time + " ";
+            if (theta_changed) s = s + "theta: " + theta + " ";
+            if (head_1_changed) s = s + "head_1: " + head_1 + " ";
+            s = s.substring(0, s.length() - 1) + "}";
+            return s;
+            break;
+        case HEAD_CHANGE:
+            return "{HEAD_CHANGE}";
+            break;
+        case SPECIAL_COMMAND:
+            return String("{SPECIAL: ") + code + "}";
+            break;
+        case MACRO:
+            break;
+    }
+
+    return "Command";
+
 }
 
 

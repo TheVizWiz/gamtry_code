@@ -14,6 +14,10 @@ public:
 
 public:
     static const char COMMAND_SPECIAL_HOME = 0;
+    static const char COMMAND_SPECIAL_HOME_X = 1;
+    static const char COMMAND_SPECIAL_HOME_Y = 2;
+    static const char COMMAND_SPECIAL_HOME_Z = 3;
+    static const char COMMAND_SPECIAL_HOME_THETA = 4;
 
 private: //static variables
     static const char COMMAND_X = 'X';

@@ -14,11 +14,11 @@ static Logger logger = Logger("CommandQueue");
 
 Command CommandQueue::popNextCommand() {
 
-    logger.log("Getting next command in list...");
+//    logger.log("Getting next command in list...");
 
     // no command exists, so tell it not to do anything
     if (commands.empty()) {
-        logger.log("No command in list. Returning No Command.");
+//        logger.log("No command in list. Returning No Command.");
         return Command::NO_COMMAND;
     }
 
@@ -63,7 +63,6 @@ Command CommandQueue::askSerialForNextCommand() {
         return Command::NO_COMMAND;
 
     logger.log("Message received through serial.");
-    Command nextCommand;
     String inputString;
 
     String computerString = Serial.available() ? Serial.readString() : "";
@@ -71,10 +70,10 @@ Command CommandQueue::askSerialForNextCommand() {
 
     if (espString[0] == COMMAND_STARTING_CHAR_ESP) {
         inputString = espString.substring(2);
-        logger.log("ESP Command received. Message: " + inputString);
+        logger.log(String("ESP Command received. Message: ") + inputString);
     } else {
         inputString = computerString;
-        logger.log("Computer/Serial Command received. Message: " + inputString);
+        logger.log(String("Computer/Serial Command received. Message: ") + inputString);
     }
 
     if (inputString == "") {
@@ -82,9 +81,7 @@ Command CommandQueue::askSerialForNextCommand() {
         return Command::NO_COMMAND;
     }
 
-
-    nextCommand = CommandParser::parse(inputString);
-    return nextCommand;
+    return CommandParser::parse(inputString);
 }
 
 unsigned int CommandQueue::numAvailableCommands() const {
