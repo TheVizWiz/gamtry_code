@@ -6,6 +6,8 @@
 #define GAMTRY_CODE_POSITION_H
 
 
+#include <WString.h>
+
 struct Position {
 public:
     double x = 0;
@@ -16,7 +18,9 @@ public:
     double head_2 = 0;
     double head_3 = 0;
     int head = 0;
-    double g = 0; 
+    double g = 0;
+
+    String toString() const;
 };
 
 

@@ -37,9 +37,9 @@ void Command::execute(GantryConfiguration &gantry) {
             break;
         case MACRO:
             break;
-        case GRIPPER_COMMAND: 
-            executeGripper(gantry); 
-            break; 
+        case GRIPPER_COMMAND:
+            executeGripper(gantry);
+            break;
     }
 }
 
@@ -54,22 +54,36 @@ void Command::executeBase(GantryConfiguration &gantry) {
 //    Serial._println(x);
     logger.log("Executing base command.");
 
+
+    if (z_changed) {
+        logger.log("Z moved. Calculating new z...");
+        z = max(min(z, MAX_Z_MM), 0);
+        double dz = z_changed ? (z - gantry.position.z) : 0; // mm
+        double min_z_time = abs(dz) / Z_MAX_MM_PER_SECOND; // mm / (mm / s) = mm * s / mm = s = seconds
+        time = max(min_z_time, time);
+        double z_speed_mm = dz / time; // mm per second
+        double z_speed_steps = z_speed_mm * Z_STEPS_PER_MM; // steps per second
+        gantry.z_motor.moveTo(z * Z_STEPS_PER_MM);
+        gantry.z_motor.setSpeed(z_speed_steps);
+        logger.log(String("moving Z axis at ") + z_speed_steps + " steps/s until" + z + ".");
+        while (gantry.z_motor.currentPosition() != gantry.z_motor.targetPosition())
+            gantry.z_motor.runSpeedToPosition();
+        gantry.updatePosition();
+    }
+
     x = max(min(x, MAX_X_MM), 0);
     y = max(min(y, MAX_Y_MM), 0);
-    z = max(min(z, MAX_Z_MM), 0);
     theta = max(min(theta, MAX_THETA_DEG), 0);
 
 
     double dx = x_changed ? (x - gantry.position.x) : 0; // mm
     double dy = y_changed ? (y - gantry.position.y) : 0; // mm
-    double dz = z_changed ? (z - gantry.position.z) : 0; // mm
     double dtheta = theta_changed ? (theta - gantry.position.theta) : 0; // mm
 
 
 
     double min_x_time = abs(dx) / X_MAX_MM_PER_SECOND; // mm / (mm / s) = mm * s / mm = s = seconds
     double min_y_time = abs(dy) / Y_MAX_MM_PER_SECOND; // mm / (mm / s) = mm * s / mm = s = seconds
-    double min_z_time = abs(dz) / Z_MAX_MM_PER_SECOND; // mm / (mm / s) = mm * s / mm = s = seconds
     double min_theta_time = abs(dtheta) / THETA_MAX_DEG_PER_SECOND; // deg / (deg / s) = deg * s / deg = s = seconds
 //
 //    Serial._println(min_x_time);
@@ -79,7 +93,6 @@ void Command::executeBase(GantryConfiguration &gantry) {
 
     time = max(min_x_time, time);
     time = max(min_y_time, time);
-    time = max(min_z_time, time);
     time = max(min_theta_time, time);
 
     logger.log(String("time for total movement:") + time);
@@ -91,13 +104,11 @@ void Command::executeBase(GantryConfiguration &gantry) {
 
     double x_speed_mm = dx / time; // mm per second
     double y_speed_mm = dy / time; // mm per second
-    double z_speed_mm = dz / time; // mm per second
     double theta_speed_mm = dtheta / time; // deg per second
 
 
     double x_speed_steps = x_speed_mm * X_STEPS_PER_MM; // steps per second
     double y_speed_steps = y_speed_mm * Y_STEPS_PER_MM; // steps per second
-    double z_speed_steps = z_speed_mm * Z_STEPS_PER_MM; // steps per second
     double theta_speed_steps = theta_speed_mm * THETA_STEPS_PER_DEG; // steps per second
 
 //    Serial.print("Calculated speed: ");
@@ -116,11 +127,6 @@ void Command::executeBase(GantryConfiguration &gantry) {
         gantry.y_motor.setSpeed(y_speed_steps);
     }
 
-    if (z_changed) {
-        gantry.z_motor.moveTo(z * Z_STEPS_PER_MM);
-        gantry.z_motor.setSpeed(z_speed_steps);
-    }
-
     if (theta_changed) {
         gantry.theta_motor.moveTo(theta * THETA_STEPS_PER_DEG);
         gantry.theta_motor.setSpeed(theta_speed_steps);
@@ -133,57 +139,22 @@ void Command::executeBase(GantryConfiguration &gantry) {
     long theta_wanted = theta * THETA_STEPS_PER_DEG;
 
 
-
-
-
-//    Serial._println(String("Time: ") + time);
-//    Serial._println(String("Speed: ") + x_speed_steps);
-
-
-
-    unsigned long currentTime = millis();
-
-
     while (true) {
 
 
         boolean x_finished = !x_changed ||
-                             (gantry.x1_motor.currentPosition() == x_wanted &&
-                              gantry.x2_motor.currentPosition() == x_wanted);
+                             (gantry.x1_motor.currentPosition() == gantry.x1_motor.targetPosition() &&
+                              gantry.x2_motor.currentPosition() == gantry.x2_motor.targetPosition());
         boolean y_finished = !y_changed ||
-                             gantry.y_motor.currentPosition() == y_wanted;
-        boolean z_finished = !z_changed ||
-                             gantry.z_motor.currentPosition() == z_wanted;
+                             gantry.y_motor.currentPosition() == gantry.y_motor.targetPosition();
+//        boolean z_finished = !z_changed ||
+//                             gantry.z_motor.currentPosition() == z_wanted;
         boolean theta_finished = !theta_changed ||
-                                 gantry.theta_motor.currentPosition() == theta_wanted;
+                                 gantry.theta_motor.currentPosition() == gantry.theta_motor.targetPosition();
 
 
-        if (x_finished && y_finished && z_finished && theta_finished)
+        if (x_finished && y_finished && theta_finished)
             break;
-
-
-        boolean x_outside_limits =
-                (x_speed_steps < 0 && x < 0 && gantry.x1LimitSwitchTriggered()) ||
-                (x_speed_steps < 0 && x < 0 && gantry.x2LimitSwitchTriggered()) ||
-                (x_speed_steps > 0 && gantry.xMaxLimitReached());
-
-        boolean y_outside_limits =
-                (y_speed_steps < 0 && y < 0 && gantry.yLimitSwitchTriggered()) ||
-                (y_speed_steps > 0 && gantry.yMaxLimitReached());
-
-        boolean z_outside_limits =
-                (z_speed_steps < 0 && z < 0 && gantry.zLimitSwitchTriggered()) ||
-                (z_speed_steps > 0 && gantry.zMaxLimitReached());
-
-        boolean theta_outside_limits =
-                (theta_speed_steps < 0 && theta < 0 && gantry.thetaLimitSwitchTriggered()) ||
-                (theta_speed_steps > 0 && gantry.thetaMaxLimitReached());
-
-        if (x_outside_limits || y_outside_limits || z_outside_limits || theta_outside_limits) {
-            logger.err("Limits exceeded. Exiting base movement loop early.");
-            gantry.updatePosition();
-            return;
-        }
 
 
         if (x_changed)
@@ -191,9 +162,8 @@ void Command::executeBase(GantryConfiguration &gantry) {
         if (x_changed)
             gantry.x2_motor.runSpeedToPosition();
         if (y_changed)
-            gantry.y_motor.run();
-        if (z_changed)
-            gantry.z_motor.runSpeedToPosition();
+            gantry.y_motor.runSpeedToPosition();
+
         if (theta_changed)
             gantry.theta_motor.runSpeedToPosition();
 
@@ -208,11 +178,52 @@ void Command::executeBase(GantryConfiguration &gantry) {
     gantry.theta_motor.setSpeed(0);
 
     logger.log("Successfully executed base command.");
+    logger.log(String("Current gantry position: ") + gantry.position.toString());
 
 }
 
 void Command::executeHeadChange(GantryConfiguration &gantry) {
 
+    logger.log("Received Head Change command. Executing...");
+    logger.log(String("Current gantry position: ") + gantry.position.head + " new wanted: " + head);
+
+    switch (gantry.position.head) {
+        case 0:
+            switch (head) {
+                case 0:
+                    break;
+                case 1:
+                    logger.log("Switching from no head to Gripper.");
+                    CommandParser::parse("Z110").execute(gantry);
+                    CommandParser::parse("X385 Y204").execute(gantry);
+                    CommandParser::parse("Z65").execute(gantry);
+                    CommandParser::parse("Z67").execute(gantry);
+                    CommandParser::parse("X300 t2").execute(gantry);
+                    CommandParser::parse("Z50").execute(gantry);
+                    CommandParser::parse("X200 Y400").execute(gantry);
+                    logger.log("successfully changed head to head 1: Gripper.");
+                    break;
+            }
+            gantry.position.head = 1;
+            break;
+        case 1:
+            switch (head) {
+                case 0:
+                    logger.log("Switching from Gripper head to no head.");
+                    CommandParser::parse("X325 Y204").execute(gantry);
+                    CommandParser::parse("Z71").execute(gantry);
+                    CommandParser::parse("X385 t2").execute(gantry);
+                    CommandParser::parse("Z55").execute(gantry);
+                    CommandParser::parse("X300 t2").execute(gantry);
+                    CommandParser::parse("X200 Y400 Z20").execute(gantry);
+                    logger.log("Successfully switched from Gripper to no head.");
+                    break;
+            }
+            gantry.position.head = 0;
+            break;
+        case 2:
+            break;
+    }
 
 }
 
@@ -234,6 +245,61 @@ void Command::executeSpecial(GantryConfiguration &gantry) {
         case CommandParser::COMMAND_SPECIAL_HOME_THETA:
             gantry.homeThetaAxis();
             break;
+        case CommandParser::COMMAND_SPECIAL_HOME_THETA + 1:
+
+            CommandParser::parse("Z10").execute(gantry);
+            CommandParser::parse("t2 X270 Y410").execute(gantry);
+            CommandParser::parse("Z0").execute(gantry);
+            CommandParser::parse("t2 X220 Y400").execute(gantry);
+            CommandParser::parse("t2 X245 Y390").execute(gantry);
+            CommandParser::parse("t2 X220 Y380").execute(gantry);
+            CommandParser::parse("t2 X270 Y370").execute(gantry);
+            CommandParser::parse("Z10").execute(gantry);
+
+            CommandParser::parse("t2 X270 Y290").execute(gantry);
+            CommandParser::parse("Z0").execute(gantry);
+            CommandParser::parse("t2 X270 Y330").execute(gantry);
+            CommandParser::parse("t2 X220 Y330").execute(gantry);
+            CommandParser::parse("t2 X220 Y290").execute(gantry);
+            CommandParser::parse("Z10").execute(gantry);
+            CommandParser::parse("t2 X245 Y330").execute(gantry);
+            CommandParser::parse("Z0").execute(gantry);
+            CommandParser::parse("t2 X245 Y310").execute(gantry);
+            CommandParser::parse("Z10").execute(gantry);
+
+            CommandParser::parse("t2 X200 Y350").execute(gantry);
+            CommandParser::parse("Z0").execute(gantry);
+            CommandParser::parse("t2 X208 Y342").execute(gantry);
+            CommandParser::parse("t2 X208 Y333").execute(gantry);
+            CommandParser::parse("t2 X200 Y325").execute(gantry);
+            CommandParser::parse("t2 X170 Y350").execute(gantry);
+            CommandParser::parse("t2 X200 Y375").execute(gantry);
+            CommandParser::parse("t2 X208 Y367").execute(gantry);
+            CommandParser::parse("t2 X208 Y358").execute(gantry);
+            CommandParser::parse("t2 X200 Y350").execute(gantry);
+            CommandParser::parse("Z10").execute(gantry);
+
+            CommandParser::parse("t2 X160 Y370").execute(gantry);
+            CommandParser::parse("Z0").execute(gantry);
+            CommandParser::parse("t2 X160 Y410").execute(gantry);
+            CommandParser::parse("t2 X110 Y410").execute(gantry);
+            CommandParser::parse("t2 X110 Y370").execute(gantry);
+            CommandParser::parse("t2 X135 Y370").execute(gantry);
+            CommandParser::parse("t2 X135 Y390").execute(gantry);
+            CommandParser::parse("t2 X125 Y390").execute(gantry);
+            CommandParser::parse("Z10").execute(gantry);
+
+            CommandParser::parse("t2 X160 Y330").execute(gantry);
+            CommandParser::parse("Z0").execute(gantry);
+            CommandParser::parse("t2 X110 Y330").execute(gantry);
+            CommandParser::parse("t2 X110 Y290").execute(gantry);
+            CommandParser::parse("t2 X160 Y290").execute(gantry);
+            CommandParser::parse("Z10").execute(gantry);
+            CommandParser::parse("t2 X150 Y150").execute(gantry);
+
+
+            break;
+
     }
 
 }
@@ -242,6 +308,8 @@ void Command::executeHoming(GantryConfiguration &gantry) {
     gantry.homeXAxis();
     gantry.homeYAxis();
     gantry.homeZAxis();
+    gantry.homeThetaAxis();
+    CommandParser::parse("X250 Y250 Z20 T90").execute(gantry);
 //    gantry.homeThetaAxis();
 }
 
@@ -249,8 +317,8 @@ void Command::executeGripper(GantryConfiguration &gantry) {
     logger.log("Executing gripper command.");
 
     g = max(min(g, MAX_G), 0);
-    gantry.gripperServo.write(g); 
-    delay(15); 
+    gantry.gripperServo.write(g);
+    delay(15);
 }
 
 

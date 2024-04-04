@@ -31,9 +31,6 @@ boolean GantryConfiguration::initialize() {
 
     logger.log("initializing gantry");
 
-    head = Head();
-
-
     logger.log("initializing motors x1, x2, y, z, theta");
     x1_motor = AccelStepper(AccelStepper::DRIVER, X1_MOTOR_PINS);
     x2_motor = AccelStepper(AccelStepper::DRIVER, X2_MOTOR_PINS);
@@ -62,6 +59,7 @@ boolean GantryConfiguration::initialize() {
     pinMode(Y_LIMIT_SWITCH_PIN, INPUT_PULLUP);
     pinMode(Z_LIMIT_SWITCH_PIN, INPUT_PULLUP);
     pinMode(THETA_LIMIT_SWITCH_PIN, INPUT_PULLUP);
+
     
     gripperServo.attach(GRIPPER_PIN); 
 
@@ -158,10 +156,10 @@ void GantryConfiguration::homeZAxis() {
 
 
     logger.log(String("Moving Z Axis at ") + Z_ZEROING_STEPS_PER_SECOND + " steps per second");
-    z_motor.setSpeed(-Z_ZEROING_STEPS_PER_SECOND);
     z_motor.moveTo(-1000000000);
+    z_motor.setSpeed(-Z_ZEROING_STEPS_PER_SECOND);
     while (!zLimitSwitchTriggered()) {
-        z_motor.runSpeed();
+        z_motor.runSpeedToPosition();
     }
 
 //    logger.log("HIT Z AXIS SWITCH. Moving Z Axis back...");
