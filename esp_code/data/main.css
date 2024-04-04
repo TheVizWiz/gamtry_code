@@ -39,6 +39,17 @@ header {
 }
 
 
+.gripper {
+  position: fixed; 
+  top: 300px; 
+  left: 600px; 
+}
+
+.gripper img {
+  width: 150px; 
+  height: auto; 
+}
+
 .dot {
     width: 10px;
     height: 10px;
@@ -51,13 +62,14 @@ header {
     text-align: center;
     position: fixed; 
     top: 300px; 
-    left: 450px; 
+    left: 400px; 
 }
 
 .left-btn {
     display: block;
     width: 150px;
     height: 40px;
+    margin-top: 10px; 
     margin-bottom: 10px;
     background-color: #4CAF50;
     color: white;
@@ -70,4 +82,101 @@ header {
 
 .left-btn:hover {
     background-color: #45a049;
+}
+
+.chat-container {
+    width: 300px;
+    margin: 50px auto;
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-left: 20px; 
+  }
+  .chat {
+    padding: 20px;
+    overflow-y: auto;
+    height: 525px;
+    scrollbar-width: thin;
+  }
+  .message {
+    margin-bottom: 10px;
+  }
+  .message .sender {
+    font-weight: bold;
+  }
+  .message .text {
+    margin-top: 5px;
+    padding: 8px;
+    border-radius: 5px;
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+  .input {
+    padding: 10px;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+  }
+  .input input[type="text"] {
+    width: calc(100% - 20px);
+    padding: 8px;
+    border: none;
+    border-radius: 5px;
+    outline: none;
+  }
+  .input button {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: #fff;
+    cursor: pointer;
+    outline: none;
+  }
+  .input button:hover {
+    background-color: #0056b3;
+  }
+
+  input[type=range][orient=vertical] {
+    appearance: slider-vertical;
+    width: 8px;
+    height: 400px;
+    padding: 0 5px;
+}
+
+
+.dial {
+  width: 100px;
+  height: 100px;
+  border: 1px solid black;
+  border-radius: 50%;
+  background-color: #969696;
+  position: fixed; 
+  top: 300px; 
+  left: 600px; 
+}
+
+.dial-handle {
+  width: 10px;
+  height: 500px;
+  background-color: #333;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform-origin: 50% 100%;
+  transform: translateX(-50%) rotate(0deg);
+  border-radius: 10px;
+}
+
+.dial-handle:after {
+  content: '';
+  width: 10px;
+  height: 10px;
+  background-color: #333;
+  position: absolute;
+  transform: translateX(-50%);
+  border-radius: 50%;
+}
+
+.dial:hover .dial-handle {
+  background-color: #555;
+  cursor: pointer;
 }
