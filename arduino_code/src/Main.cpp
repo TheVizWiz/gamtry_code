@@ -28,7 +28,6 @@ void setup() {
     Serial1.setTimeout(10);
     Logger::initialize();
     gantry.initialize();
-    delay(5000);
 
 //    logger.debug("writing to servo");
 //
@@ -87,6 +86,7 @@ void loop() {
 //
     if (command.isNoCommand())
         return;
+
 
 
     command.execute(gantry);

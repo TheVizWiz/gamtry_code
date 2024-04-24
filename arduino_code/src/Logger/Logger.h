@@ -43,6 +43,8 @@ public:
 
     Logger(char *className);
 
+    boolean logBare(const String &s);
+
     boolean log(const String &s);
 
     boolean log(char x);

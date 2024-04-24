@@ -72,8 +72,13 @@ Command CommandParser::parse(String input) {
 
         switch (commandChar) {
 
+            //check for write command
+            case COMMAND_WRITE:
+                command.type = CommandType::WRITE_COMMAND;
+                command.letters = String(amount);
+                break;
 
-            // check for special command
+                // check for special command
             case COMMAND_SPECIAL:
                 command.type = CommandType::SPECIAL_COMMAND;
                 command.code = amount.toInt();
@@ -89,6 +94,12 @@ Command CommandParser::parse(String input) {
             case COMMAND_MACRO:
                 command.type = CommandType::MACRO;
                 command.code = amount.toInt();
+                return command;
+
+                //check for gripper command
+            case COMMAND_GRIPPER:
+                command.type = CommandType::GRIPPER_COMMAND;
+                command.g = amount.toFloat();
                 return command;
 
                 // all other commands considered base commands
@@ -123,9 +134,15 @@ Command CommandParser::parse(String input) {
             case COMMAND_HEAD_3:
                 command.head_3 = amount.toFloat();
                 command.head_3_changed = true;
-            case COMMAND_G: 
-                command.type = CommandType::GRIPPER_COMMAND; 
-                command.g = amount.toFloat(); 
+                break;
+
+            case COMMAND_WRITE_BASE:
+                command.base_size = amount.toFloat();
+                break;
+
+            case COMMAND_WRITE_SPACING:
+                command.char_x_multiplier = amount.toFloat();
+                break;
 
 
 //            default:

@@ -32,12 +32,15 @@ private: //static variables
 
     static const char COMMAND_SPECIAL = 'S';
     static const char COMMAND_MACRO = 'M';
+    static const char COMMAND_WRITE = 'W';
+    static const char COMMAND_WRITE_BASE = 'B';
+    static const char COMMAND_WRITE_SPACING = 'C';
 
-    static const char COMMAND_LOG = 'L';
-    static const char COMMAND_WARN = 'W';
-    static const char COMMAND_ERR = 'E';
+    static const char COMMAND_LOG = 'l';
+    static const char COMMAND_WARN = 'w';
+    static const char COMMAND_ERR = 'e';
 
-    static const char COMMAND_G = 'G'; 
+    static const char COMMAND_GRIPPER = 'G';
 
 
 

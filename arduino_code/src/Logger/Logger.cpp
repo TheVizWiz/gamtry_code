@@ -103,6 +103,29 @@ String Logger::constructString(const String &s, const String &type) {
 }
 
 
+boolean Logger::logBare(const String &s) {
+#ifndef LOGGING
+    return false;
+#endif
+
+    String message = s;
+#ifndef LOGGING_SD_LOGS
+    logFile.println(message);
+#endif
+
+#ifndef LOGGING_TO_SERIAL
+    return true;
+#endif
+
+#ifndef LOGGING_SERIAL_LOGS
+    return true;
+#endif
+
+    Serial.println(message);
+    return true;
+
+}
+
 boolean Logger::log(const String &s) {
 
 

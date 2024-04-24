@@ -13,20 +13,14 @@ static Logger logger = Logger("CommandQueue");
 
 
 Command CommandQueue::popNextCommand() {
-
-//    logger.log("Getting next command in list...");
-
     // no command exists, so tell it not to do anything
     if (commands.empty()) {
-//        logger.log("No command in list. Returning No Command.");
         return Command::NO_COMMAND;
     }
 
 
     Command command = commands.front();
-
-//    Serial.println(#commands);
-
+//
     logger.log(String("Command found. Command: ") + commands[0].toString());
     commands.remove(0);
     return command;
@@ -34,7 +28,6 @@ Command CommandQueue::popNextCommand() {
 
 Command CommandQueue::queueCommand() {
     return queueCommand(SERIAL_PING_TRY_TIME);
-
 }
 
 Command CommandQueue::queueCommand(long tryMillis) {
@@ -44,7 +37,7 @@ Command CommandQueue::queueCommand(long tryMillis) {
     uint32_t startMillis = millis();
 
 
-    Serial1.println(SERIAL_PING_MESSAGE);
+//    Serial1.println(SERIAL_PING_MESSAGE);
 //    Serial.println(SERIAL_PING_MESSAGE);
     while (millis() - startMillis <= tryMillis) {
         Command command = askSerialForNextCommand();
@@ -67,6 +60,14 @@ Command CommandQueue::askSerialForNextCommand() {
 
     String computerString = Serial.available() ? Serial.readString() : "";
     String espString = Serial1.available() ? Serial1.readString() : "";
+
+    if (computerString.length() > 0) {
+        computerString = computerString.substring(0, computerString.length() - 1);
+    }
+
+    if (espString.length() > 0) {
+        espString = espString.substring(0, espString.length() - 1);
+    }
 
     if (espString[0] == COMMAND_STARTING_CHAR_ESP) {
         inputString = espString.substring(2);

@@ -9,9 +9,10 @@
 #include "Position.h"
 #include "Gantry.h"
 
+struct GantryConfiguration;
 
 enum CommandType {
-    NONE, BASE, HEAD_CHANGE, SPECIAL_COMMAND, MACRO, GRIPPER_COMMAND
+    NONE, BASE, HEAD_CHANGE, SPECIAL_COMMAND, MACRO, GRIPPER_COMMAND, WRITE_COMMAND
 };
 
 
@@ -50,14 +51,20 @@ public:
             head_1_changed = false,
             head_2_changed = false,
             head_3_changed = false;
+    String letters;
+    float base_size = 20.0;
+    float char_x_multiplier = 1.2;//
+
 
 private:
     void executeBase(GantryConfiguration &gantry);
     void executeHeadChange(GantryConfiguration &gantry);
     void executeSpecial(GantryConfiguration &gantry);
     void executeHoming(GantryConfiguration &gantry);
-    void executeGripper(GantryConfiguration &gantry); 
-
+    void executeGripper(GantryConfiguration &gantry);
+    void executeWrite(GantryConfiguration &gantry);
+    void drawLetter(GantryConfiguration &gantry, char letter, float x_start, float y_start, float width, float height,
+                    float z_start, float z_jump);
 };
 
 

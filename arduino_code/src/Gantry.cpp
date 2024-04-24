@@ -4,6 +4,7 @@
 
 #include "Gantry.h"
 #include "Logger/Logger.h"
+#include "Command/CommandParser.h"
 
 static Logger logger = Logger("Gantry");
 
@@ -61,7 +62,8 @@ boolean GantryConfiguration::initialize() {
     pinMode(THETA_LIMIT_SWITCH_PIN, INPUT_PULLUP);
 
     
-    gripperServo.attach(GRIPPER_PIN); 
+    gripperServo.attach(GRIPPER_PIN);
+    gripperServo.write(0);
 
 #ifdef LIMIT_SWITCH_INTERRUPTS
     attachInterrupt(digitalPinToInterrupt(X1_LIMIT_SWITCH_PIN), clickX1, CHANGE);
@@ -105,8 +107,8 @@ void GantryConfiguration::homeXAxis() {
     }
 
     logger.log("Moving X Axis back...");
-    x1_motor.setSpeed(-X_ZEROING_STEPS_PER_SECOND);
-    x2_motor.setSpeed(-X_ZEROING_STEPS_PER_SECOND);
+    x1_motor.setSpeed(-X_ZEROING_STEPS_PER_SECOND / 2);
+    x2_motor.setSpeed(-X_ZEROING_STEPS_PER_SECOND / 2);
     while (!x1LimitSwitchTriggered() ||
            !x2LimitSwitchTriggered()) {
         if (!x1LimitSwitchTriggered())
@@ -304,5 +306,35 @@ boolean GantryConfiguration::zMaxLimitReached() {
 
 boolean GantryConfiguration::thetaMaxLimitReached() {
     return position.theta >= MAX_THETA_DEG;
+}
+
+void GantryConfiguration::execute(Command &command) {
+    command.execute(*this);
+}
+
+void GantryConfiguration::execute(String &command) {
+    CommandParser::parse(command).execute(*this);
+}
+
+void GantryConfiguration::execute(char *command) {
+    CommandParser::parse(command).execute(*this);
+}
+
+void GantryConfiguration::execute(Command *commands, int numCommands) {
+    for (int i = 0; i < numCommands; i++) {
+        commands[i].execute(*this);
+    }
+}
+
+void GantryConfiguration::execute(String *commands, int numCommands) {
+    for (int i = 0; i < numCommands; i++) {
+        CommandParser::parse(commands[i]).execute(*this);
+    }
+}
+
+void GantryConfiguration::execute(char **commands, int numCommands) {
+    for (int i = 0; i < numCommands; i++) {
+        CommandParser::parse(commands[i]).execute(*this);
+    }
 }
 

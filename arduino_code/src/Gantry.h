@@ -8,14 +8,15 @@
 #include "Position.h"
 #include "AccelStepper.h"
 #include "Servo.h"
+#include "Command/Command.h"
 
 #define X1_MOTOR_PINS 22, 24
 #define X2_MOTOR_PINS 26, 28
 #define Y_MOTOR_PINS 30, 32
 #define Z_MOTOR_PINS 34, 36
-#define THETA_MOTOR_PINS 23, 25
+#define THETA_MOTOR_PINS 38, 40
 
-#define GRIPPER_PIN 10 
+#define GRIPPER_PIN 8
 
 #define X_MICROSTEPS 8
 #define Y_MICROSTEPS 8
@@ -35,7 +36,7 @@
 
 
 #define X_MAX_STEPS_PER_SECOND (1000.0 * X_MICROSTEPS)
-#define Y_MAX_STEPS_PER_SECOND (1000.0 * Y_MICROSTEPS)
+#define Y_MAX_STEPS_PER_SECOND (500.0 * Y_MICROSTEPS)
 #define Z_MAX_STEPS_PER_SECOND (1500.0 * Z_MICROSTEPS)
 #define THETA_MAX_STEPS_PER_SECOND (100.0 * THETA_MICROSTEPS)
 
@@ -43,21 +44,21 @@
 #define X_ACCELERATION (X_MAX_STEPS_PER_SECOND * X_MAX_STEPS_PER_SECOND / 100)
 #define Y_ACCELERATION (Y_MAX_STEPS_PER_SECOND * Y_MAX_STEPS_PER_SECOND / 100)
 #define Z_ACCELERATION (Z_MAX_STEPS_PER_SECOND * Z_MAX_STEPS_PER_SECOND / 100)
-#define THETA_ACCELERATION (THETA_MAX_STEPS_PER_SECOND * THETA_MAX_STEPS_PER_SECOND / 100)
+#define THETA_ACCELERATION      (THETA_MAX_STEPS_PER_SECOND * THETA_MAX_STEPS_PER_SECOND / 100)
 
 #define X_MAX_MM_PER_SECOND (X_MAX_STEPS_PER_SECOND * X_MM_PER_STEP)
 #define Y_MAX_MM_PER_SECOND (Y_MAX_STEPS_PER_SECOND * Y_MM_PER_STEP)
 #define Z_MAX_MM_PER_SECOND (Z_MAX_STEPS_PER_SECOND * Z_MM_PER_STEP)
 #define THETA_MAX_DEG_PER_SECOND (THETA_MAX_STEPS_PER_SECOND * THETA_DEG_PER_STEP)
 
-#define X_ZEROING_STEPS_PER_SECOND (X_MAX_STEPS_PER_SECOND / 2)
-#define Y_ZEROING_STEPS_PER_SECOND (Y_MAX_STEPS_PER_SECOND / 2)
+#define X_ZEROING_STEPS_PER_SECOND (X_MAX_STEPS_PER_SECOND / 4)
+#define Y_ZEROING_STEPS_PER_SECOND (Y_MAX_STEPS_PER_SECOND / 4)
 #define Z_ZEROING_STEPS_PER_SECOND (Z_MAX_STEPS_PER_SECOND / 2)
 #define THETA_ZEROING_STEPS_PER_SECOND (THETA_MAX_STEPS_PER_SECOND / 2)
 
 #define MAX_X_MM 450.0
 #define MAX_Y_MM 490.0
-#define MAX_Z_MM 155.0
+#define MAX_Z_MM 145.0
 #define MAX_THETA_DEG 180.0
 
 #define MAX_G 180.0
@@ -85,8 +86,10 @@
 #define X2_LIMIT_SWITCH_PIN 47
 #define Y_LIMIT_SWITCH_PIN 49
 #define Z_LIMIT_SWITCH_PIN 51
-#define THETA_LIMIT_SWITCH_PIN 39
+#define THETA_LIMIT_SWITCH_PIN 53
 #endif
+
+class Command;
 
 
 struct GantryConfiguration {
@@ -107,6 +110,13 @@ public:
     GantryConfiguration() = default;
 
     boolean initialize();
+
+    void execute(Command &command);
+    void execute(String &command);
+    void execute(char *command);
+    void execute(Command *commands, int numCommands);
+    void execute(String *commands, int numCommands);
+    void execute(char **commands, int numCommands);
 
     void updatePosition();
 
