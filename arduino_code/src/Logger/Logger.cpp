@@ -12,11 +12,21 @@ File Logger::logFile = SD.open("log.txt");
 boolean Logger::initSuccess = false;
 
 boolean Logger::initialize() {
-    if (!SD.begin(SD_SELECT_PIN))
-        return false;
 
-    if (!SD.exists(LOGGING_DIR))
+    logger.log("Trying to open SD card...");
+
+    pinMode(SD_SELECT_PIN, OUTPUT);
+
+    if (!SD.begin(SD_SELECT_PIN)) {
+        logger.log("No SD card found.");
+        return false;
+    }
+
+    if (!SD.exists(LOGGING_DIR)) {
+        logger.log(String("No logging directory exists. Making with name ") + LOGGING_DIR);
         SD.mkdir(LOGGING_DIR);
+        logger.log(String("made directory. Exists: ") + SD.exists(LOGGING_DIR));
+    }
 
     File directory = SD.open(LOGGING_DIR);
 
@@ -42,6 +52,8 @@ boolean Logger::initialize() {
                          LOGGING_BASE_NAME
                          + (numFiles + 1)
                          + LOGGING_FILE_EXT;
+
+    logger.log(String("New log file with name ") + logFileName + " created.");
 
     logFile = SD.open(logFileName, FILE_WRITE);
     if (!logFile)
@@ -109,7 +121,7 @@ boolean Logger::logBare(const String &s) {
 #endif
 
     String message = s;
-#ifndef LOGGING_SD_LOGS
+#ifdef LOGGING_SD_LOGS
     logFile.println(message);
 #endif
 
@@ -136,7 +148,7 @@ boolean Logger::log(const String &s) {
 
     String message = constructString(s, "LOG");
 
-#ifndef LOGGING_SD_LOGS
+#ifdef LOGGING_SD_LOGS
     logFile.println(message);
 #endif
 
@@ -180,7 +192,7 @@ boolean Logger::warn(const String &s) {
 
     String message = constructString(s, "WAR");
 
-#ifndef LOGGING_SD_WARNINGS
+#ifdef LOGGING_SD_WARNINGS
     logFile.println(message);
 #endif
 
@@ -224,7 +236,7 @@ boolean Logger::err(const String &s) {
 
     String message = constructString(s, "ERR");
 
-#ifndef LOGGING_SD_ERRORS
+#ifdef LOGGING_SD_ERRORS
     logFile.println(message);
 #endif
 

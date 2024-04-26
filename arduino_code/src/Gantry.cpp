@@ -211,6 +211,10 @@ void GantryConfiguration::homeThetaAxis() {
     logger.log(String("Hit Theta axis switch again. Setting to 0. Delta to old 0: ") + theta_motor.currentPosition());
     theta_motor.setCurrentPosition(0);
     position.theta = 0;
+    execute("T11.5");
+    logger.log("Moving 11.5 degrees and setting as new 0 point aligned with axes.");
+    theta_motor.setCurrentPosition(0);
+    position.theta = 0;
 
 }
 

@@ -15,16 +15,21 @@ Command CommandParser::parse(String input) {
     // This can help to separate messages into segments.
     if (input.length() >= 2) {
         String message = input.substring(2);
+        message.trim();
         switch (input[0]) {
             case COMMAND_LOG:
                 inputLogger.log(message);
-                break;
+                return Command::NO_COMMAND;
             case COMMAND_WARN:
                 inputLogger.warn(message);
-                break;
+                return Command::NO_COMMAND;
             case COMMAND_ERR:
                 inputLogger.err(message);
-                break;
+                return Command::NO_COMMAND;
+            case COMMAND_READ:
+                Command command = Command(CommandType::READ_COMMAND);
+                command.fileName = message;
+                return command;
         }
     }
 
@@ -101,6 +106,11 @@ Command CommandParser::parse(String input) {
                 command.type = CommandType::GRIPPER_COMMAND;
                 command.g = amount.toFloat();
                 return command;
+
+            case COMMAND_GLUE:
+                command.type = CommandType::GLUE_COMMAND;
+                command.glue_speed = amount.toFloat();
+                break;
 
                 // all other commands considered base commands
             case COMMAND_TIME:

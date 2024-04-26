@@ -5,6 +5,7 @@
 #include "Command.h"
 #include "CommandParser.h"
 #include "Logger/Logger.h"
+#include "Vector.h"
 
 
 const Command Command::NO_COMMAND = Command(CommandType::NONE);
@@ -43,6 +44,12 @@ void Command::execute(GantryConfiguration &gantry) {
             break;
         case WRITE_COMMAND:
             executeWrite(gantry);
+            break;
+        case GLUE_COMMAND:
+            executeGlue(gantry);
+            break;
+        case READ_COMMAND:
+            executeRead(gantry);
             break;
     }
 }
@@ -90,14 +97,16 @@ void Command::executeBase(GantryConfiguration &gantry) {
     double min_y_time = abs(dy) / Y_MAX_MM_PER_SECOND; // mm / (mm / s) = mm * s / mm = s = seconds
     double min_theta_time = abs(dtheta) / THETA_MAX_DEG_PER_SECOND; // deg / (deg / s) = deg * s / deg = s = seconds
 //
-//    Serial._println(min_x_time);
-//    Serial._println(min_y_time);
-//    Serial._println(min_z_time);
-//    Serial._println(min_theta_time);
+    Serial.println(min_x_time);
+    Serial.println(min_y_time);
+    Serial.println(min_theta_time);
 
     time = max(min_x_time, time);
     time = max(min_y_time, time);
     time = max(min_theta_time, time);
+
+
+    Serial.println("hello world");
 
     logger.log(String("time for total movement:") + time);
 
@@ -115,6 +124,7 @@ void Command::executeBase(GantryConfiguration &gantry) {
     double y_speed_steps = y_speed_mm * Y_STEPS_PER_MM; // steps per second
     double theta_speed_steps = theta_speed_mm * THETA_STEPS_PER_DEG; // steps per second
 
+    Serial.println("moving");
 //    Serial.print("Calculated speed: ");
 //    Serial._println(x_speed_steps);
 
@@ -205,7 +215,7 @@ void Command::executeHeadChange(GantryConfiguration &gantry) {
                             "Z65",
                             "Z67",
                             "X280 t2",
-                            "G0"
+                            String("G") + MIN_G
                     };
                     gantry.execute(commands, 7);
                     logger.log("successfully changed head to head 1: Gripper.");
@@ -326,9 +336,41 @@ void Command::executeHoming(GantryConfiguration &gantry) {
 void Command::executeGripper(GantryConfiguration &gantry) {
     logger.log("Executing gripper command.");
 
-    g = max(min(g, MAX_G), 0);
+    g = max(min(g, MAX_G), MIN_G);
     gantry.gripperServo.write(g);
     delay(15);
+}
+
+void Command::executeRead(GantryConfiguration &gantry) {
+
+    File file = SD.open(String("commands/") + fileName,FILE_READ);
+    if (!file) {
+        logger.log("no such file exists. Unable to read command");
+    }
+
+    logger.log(String("file with filename ") + file.name() + " found. Running all commands...");
+
+    String allLines = file.readString();
+
+
+    int currentLocation = 0;
+    int nextLineLocation = 0;
+
+    while (nextLineLocation < allLines.length()) {
+        if (allLines[nextLineLocation] == '\n') {
+            String line = allLines.substring(currentLocation, nextLineLocation);
+            currentLocation = nextLineLocation + 1;
+            nextLineLocation = currentLocation;
+            logger.log(String("Line read from file: ") + line);
+            CommandParser::parse(line).execute(gantry);
+        }
+        nextLineLocation++;
+    }
+
+    String line = allLines.substring(currentLocation, nextLineLocation);
+    logger.log(String("Line read from file: ") + line);
+    CommandParser::parse(line).execute(gantry);
+
 }
 
 
@@ -348,15 +390,14 @@ static String getXYWriteCoordinates(LetterData &data, float x, float y) {
 }
 
 
-void
-Command::drawLetter(GantryConfiguration &gantry,
-                    char letter,
-                    float x_start,
-                    float y_start,
-                    float width,
-                    float height,
-                    float z_start,
-                    float z_jump) {
+void Command::drawLetter(GantryConfiguration &gantry,
+                         char letter,
+                         float x_start,
+                         float y_start,
+                         float width,
+                         float height,
+                         float z_start,
+                         float z_jump) {
 
 
     LetterData data = {
@@ -596,6 +637,31 @@ void Command::executeWrite(GantryConfiguration &gantry) {
         float x_start = x_beginning + char_x_multiplier * width * i;
         drawLetter(gantry, letter, x_start, y_start, width, height, z_start, z_jump);
     }
+}
+
+void Command::executeGlue(GantryConfiguration &gantry) {
+    logger.log("executing glue command.");
+    time = time_changed ? time : 1.0;
+    glue_speed = max(-1, min(1, glue_speed));
+    int speed = 255 * abs(glue_speed);
+    logger.log(String("Running glue at ") + speed + " for " + time + " seconds");
+
+
+    float startTime = millis();
+    if (speed < 0 ) {
+        analogWrite(GLUE_PIN_2, LOW);
+        analogWrite(GLUE_PIN_1, speed);
+    } else {
+        analogWrite(GLUE_PIN_1, LOW);
+        analogWrite(GLUE_PIN_2, speed);
+    }
+    delay(time * 1000);
+
+    logger.log("Finished running glue gun. setting glue speed to 0...");
+
+    analogWrite(GLUE_PIN_2, LOW);
+    analogWrite(GLUE_PIN_1, LOW);
+
 }
 
 boolean Command::isNoCommand() const {

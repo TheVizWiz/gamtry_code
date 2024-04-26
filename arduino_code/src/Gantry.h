@@ -17,6 +17,8 @@
 #define THETA_MOTOR_PINS 38, 40
 
 #define GRIPPER_PIN 8
+#define GLUE_PIN_1 4
+#define GLUE_PIN_2 5
 
 #define X_MICROSTEPS 8
 #define Y_MICROSTEPS 8
@@ -60,8 +62,8 @@
 #define MAX_Y_MM 490.0
 #define MAX_Z_MM 145.0
 #define MAX_THETA_DEG 180.0
-
-#define MAX_G 180.0
+#define MIN_G 10.0
+#define MAX_G 75.0
 
 #define HEAD_PIN_1
 #define HEAD_PIN_2
@@ -82,11 +84,11 @@
 #define Z_LIMIT_SWITCH_PIN 19
 #define THETA_LIMIT_SWITCH_PIN 20
 #else
-#define X1_LIMIT_SWITCH_PIN 45
-#define X2_LIMIT_SWITCH_PIN 47
-#define Y_LIMIT_SWITCH_PIN 49
-#define Z_LIMIT_SWITCH_PIN 51
-#define THETA_LIMIT_SWITCH_PIN 53
+#define X1_LIMIT_SWITCH_PIN 23
+#define X2_LIMIT_SWITCH_PIN 25
+#define Y_LIMIT_SWITCH_PIN 27
+#define Z_LIMIT_SWITCH_PIN 29
+#define THETA_LIMIT_SWITCH_PIN 31
 #endif
 
 class Command;

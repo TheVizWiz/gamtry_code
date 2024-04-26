@@ -12,7 +12,7 @@
 struct GantryConfiguration;
 
 enum CommandType {
-    NONE, BASE, HEAD_CHANGE, SPECIAL_COMMAND, MACRO, GRIPPER_COMMAND, WRITE_COMMAND
+    NONE, BASE, HEAD_CHANGE, SPECIAL_COMMAND, MACRO, GRIPPER_COMMAND, WRITE_COMMAND, GLUE_COMMAND, READ_COMMAND
 };
 
 
@@ -52,8 +52,10 @@ public:
             head_2_changed = false,
             head_3_changed = false;
     String letters;
+    String fileName;
     float base_size = 20.0;
     float char_x_multiplier = 1.2;//
+    float glue_speed = 0.0f;
 
 
 private:
@@ -65,6 +67,9 @@ private:
     void executeWrite(GantryConfiguration &gantry);
     void drawLetter(GantryConfiguration &gantry, char letter, float x_start, float y_start, float width, float height,
                     float z_start, float z_jump);
+
+    void executeGlue(GantryConfiguration &gantry);
+    void executeRead(GantryConfiguration &gantry);
 };
 
 
