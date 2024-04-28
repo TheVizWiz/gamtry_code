@@ -29,6 +29,8 @@ void setup() {
     Logger::initialize();
     gantry.initialize();
 
+    logger.log("test");
+
 //    logger.debug("writing to servo");
 //
 //    Servo servo = Servo();

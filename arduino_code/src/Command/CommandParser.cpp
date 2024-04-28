@@ -9,7 +9,13 @@
 static Logger logger = Logger("CommandParser");
 static Logger inputLogger = Logger("Input");
 
-Command CommandParser::parse(String input) {
+
+Command CommandParser::parse(const char *input) {
+    String s = input;
+    return parse(s);
+}
+
+Command CommandParser::parse(String &input) {
 
     // send log messages through the serial interface.
     // This can help to separate messages into segments.
@@ -18,13 +24,13 @@ Command CommandParser::parse(String input) {
         message.trim();
         switch (input[0]) {
             case COMMAND_LOG:
-                inputLogger.log(message);
+                inputLogger.log(message.c_str());
                 return Command::NO_COMMAND;
             case COMMAND_WARN:
-                inputLogger.warn(message);
+                inputLogger.warn(message.c_str());
                 return Command::NO_COMMAND;
             case COMMAND_ERR:
-                inputLogger.err(message);
+                inputLogger.err(message.c_str());
                 return Command::NO_COMMAND;
             case COMMAND_READ:
                 Command command = Command(CommandType::READ_COMMAND);

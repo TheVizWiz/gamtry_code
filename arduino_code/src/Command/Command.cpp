@@ -23,7 +23,9 @@ Command::Command(CommandType type) : Command() {
 void Command::execute(GantryConfiguration &gantry) {
 
     logger.logBare("");
-    logger.log(String("Running new command. Command: ") + toString());
+    char *toString = this->toString();
+    logger.log("Running new command. Command: %s", toString);
+    free(toString);
 
     switch (this->type) {
         case NONE:
@@ -76,7 +78,7 @@ void Command::executeBase(GantryConfiguration &gantry) {
         double z_speed_steps = z_speed_mm * Z_STEPS_PER_MM; // steps per second
         gantry.z_motor.moveTo(z * Z_STEPS_PER_MM);
         gantry.z_motor.setSpeed(z_speed_steps);
-        logger.log(String("moving Z axis at ") + z_speed_steps + " steps/s until" + z + ".");
+        logger.log("moving Z axis at % steps/s until %fmm.", z_speed_steps, z);
         while (gantry.z_motor.currentPosition() != gantry.z_motor.targetPosition())
             gantry.z_motor.runSpeedToPosition();
         gantry.updatePosition();
@@ -97,18 +99,14 @@ void Command::executeBase(GantryConfiguration &gantry) {
     double min_y_time = abs(dy) / Y_MAX_MM_PER_SECOND; // mm / (mm / s) = mm * s / mm = s = seconds
     double min_theta_time = abs(dtheta) / THETA_MAX_DEG_PER_SECOND; // deg / (deg / s) = deg * s / deg = s = seconds
 //
-    Serial.println(min_x_time);
-    Serial.println(min_y_time);
-    Serial.println(min_theta_time);
 
     time = max(min_x_time, time);
     time = max(min_y_time, time);
     time = max(min_theta_time, time);
 
 
-    Serial.println("hello world");
 
-    logger.log(String("time for total movement:") + time);
+    logger.log("time for total movement:%f.", time);
 
 
 //    Serial.print("calculated time: ");
@@ -124,7 +122,6 @@ void Command::executeBase(GantryConfiguration &gantry) {
     double y_speed_steps = y_speed_mm * Y_STEPS_PER_MM; // steps per second
     double theta_speed_steps = theta_speed_mm * THETA_STEPS_PER_DEG; // steps per second
 
-    Serial.println("moving");
 //    Serial.print("Calculated speed: ");
 //    Serial._println(x_speed_steps);
 
@@ -192,14 +189,16 @@ void Command::executeBase(GantryConfiguration &gantry) {
     gantry.theta_motor.setSpeed(0);
 
     logger.log("Successfully executed base command.");
-    logger.log(String("Current gantry position: ") + gantry.position.toString());
+    char *currentGantryPos = gantry.position.toString();
+    logger.log("Current gantry position: %s.", currentGantryPos);
+    free(currentGantryPos);
 
 }
 
 void Command::executeHeadChange(GantryConfiguration &gantry) {
 
     logger.log("Received Head Change command. Executing...");
-    logger.log(String("Current gantry position: ") + gantry.position.head + " new wanted: " + head);
+    logger.log("Current gantry position: %d. New wanted: %d", gantry.position.head, head);
 
     switch (gantry.position.head) {
         case 0:
@@ -348,27 +347,29 @@ void Command::executeRead(GantryConfiguration &gantry) {
         logger.log("no such file exists. Unable to read command");
     }
 
-    logger.log(String("file with filename ") + file.name() + " found. Running all commands...");
+
+    logger.log("File with filename %s found. Running all commands...", file.name());
 
     String allLines = file.readString();
 
+    char currentLine[25];
 
     int currentLocation = 0;
     int nextLineLocation = 0;
 
     while (nextLineLocation < allLines.length()) {
         if (allLines[nextLineLocation] == '\n') {
-            String line = allLines.substring(currentLocation, nextLineLocation);
+            memcpy(currentLine, allLines.c_str() + currentLocation, nextLineLocation - currentLocation);
             currentLocation = nextLineLocation + 1;
             nextLineLocation = currentLocation;
-            logger.log(String("Line read from file: ") + line);
-            CommandParser::parse(line).execute(gantry);
+            logger.log(F("Line read from file: %s"), currentLine);
+            CommandParser::parse(currentLine).execute(gantry);
         }
         nextLineLocation++;
     }
 
     String line = allLines.substring(currentLocation, nextLineLocation);
-    logger.log(String("Line read from file: ") + line);
+    logger.log(F("Line read from file: %s"), currentLine);
     CommandParser::parse(line).execute(gantry);
 
 }
@@ -382,6 +383,7 @@ typedef struct LetterData {
 } LetterData;
 
 static String getXYWriteCoordinates(LetterData &data, float x, float y) {
+
     String command = "t2 ";
     x = x * data.width + data.bottomLeftX;
     y = y * data.height + data.bottomLeftY;
@@ -413,11 +415,8 @@ void Command::drawLetter(GantryConfiguration &gantry,
 
     gantry.execute(up);
 
-    logger.log(
-            String("Writing letter ") + letter + ". X: " + x_start + " Y: " + y_start + "Z: " + z_start +
-            " width: " +
-            width + " height: " + height);
 
+    logger.log(F("Writing char %s with (X, Y, Z, W, H) = (%f, %f, %f, %f, %f)"), letter, x_start, y_start, z_start, width, height);
 
     if (letter == '0') {
         String commands[] = {
@@ -644,7 +643,7 @@ void Command::executeGlue(GantryConfiguration &gantry) {
     time = time_changed ? time : 1.0;
     glue_speed = max(-1, min(1, glue_speed));
     int speed = 255 * abs(glue_speed);
-    logger.log(String("Running glue at ") + speed + " for " + time + " seconds");
+    logger.log(F("Running glue at %f for %f seconds"), speed, time);
 
 
     float startTime = millis();
@@ -668,7 +667,9 @@ boolean Command::isNoCommand() const {
     return this->type == CommandType::NONE;
 }
 
-String Command::toString() {
+char * Command::toString() {
+
+    char *message = static_cast<char *>(malloc(50 * sizeof(char)));
 
     String s;
 
@@ -687,21 +688,27 @@ String Command::toString() {
             if (theta_changed) s = s + "theta: " + theta + " ";
             if (head_1_changed) s = s + "head_1: " + head_1 + " ";
             s = s.substring(0, s.length() - 1) + "}";
-            return s;
+
+            sprintf(message, "%s", s.c_str());
+
             break;
         case HEAD_CHANGE:
-            return "{HEAD_CHANGE}";
+            return "{HEAD_CHANGE: %d}";
             break;
         case SPECIAL_COMMAND:
-            return String("{SPECIAL: ") + code + "}";
+            sprintf(message, "{SPECIAL: %d}" + code);
+            return message;
             break;
         case MACRO:
             break;
         case WRITE_COMMAND:
-            return String("{WRITE: ") + letters + "width: " + base_size + " x_dist: " + char_x_multiplier + "}";
+            sprintf(message, "%s", (String("{WRITE: ") + letters + "width: " + base_size + " x_dist: " + char_x_multiplier + "}").c_str());
+            return message;
+        default:
+            s = "COMMAND";
     }
 
-    return "Command";
+    return message;
 
 }
 

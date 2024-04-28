@@ -37,7 +37,7 @@ public:
 
     boolean isNoCommand() const;
 
-    String toString();
+    char *toString();
 
 public:
     double time = 0;

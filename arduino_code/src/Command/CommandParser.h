@@ -9,7 +9,8 @@
 
 class CommandParser {
 public:
-    static Command parse(String input);
+    static Command parse(String &input);
+    static Command parse(const char *input);
 
 
 public:

@@ -5,12 +5,12 @@
 #include "Position.h"
 
 
-String Position::toString() const {
+char * Position::toString() const {
     String s = "{";
 
     s = s + "X: " + x + " ";
     s = s + "Y: " + y + " ";
     s = s + "Z: " + z + " ";
     s = s + "theta: " + theta + "}";
-    return s;
+    return const_cast<char *>(s.c_str());
 }

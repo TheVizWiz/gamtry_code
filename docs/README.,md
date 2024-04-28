@@ -1,0 +1,10 @@
+# GAMTRY - a 4D Multi-function Manufacturing Robot
+
+
+
+The GAMTRY is a 4D multi-function manufacturing robot. Each function is added as a "head", which is self-contained and can be switched out without removal of wires. At its base, the GAMTRY is built on 4 axes of motion - x, y, z, and theta (rotation). Each head can add its own degrees of freedom as necessary. For example, a 3D printer head could add another stepper motor, increasing the degrees of freedom to 5.
+
+
+
+
+

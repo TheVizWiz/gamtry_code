@@ -20,7 +20,7 @@ public:
     int head = 0;
     double g = 0;
 
-    String toString() const;
+    char * toString() const;
 };
 
 

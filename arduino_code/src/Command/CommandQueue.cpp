@@ -20,9 +20,13 @@ Command CommandQueue::popNextCommand() {
 
 
     Command command = commands.front();
+
+
 //
-    logger.log(String("Command found. Command: ") + commands[0].toString());
+    char * toString = commands[0].toString();
+    logger.log("Command found. Command: %s", toString);
     commands.remove(0);
+    free(toString);
     return command;
 }
 
@@ -71,14 +75,14 @@ Command CommandQueue::askSerialForNextCommand() {
 
     if (espString[0] == COMMAND_STARTING_CHAR_ESP) {
         inputString = espString.substring(2);
-        logger.log(String("ESP Command received. Message: ") + inputString);
+        logger.log(F("ESP Command received. Message: %s"), inputString.c_str());
     } else {
         inputString = computerString;
-        logger.log(String("Computer/Serial Command received. Message: ") + inputString);
+        logger.log(F("Computer/Serial Command received. Message: %s"), inputString.c_str());
     }
 
     if (inputString == "") {
-        logger.warn("Empty input string, assuming faulty input and returning no command.");
+        logger.warn(F("Empty input string, assuming faulty input and returning no command."));
         return Command::NO_COMMAND;
     }
 

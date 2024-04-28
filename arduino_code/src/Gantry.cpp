@@ -30,9 +30,9 @@ static void clickTheta();
 // Created by thevizwiz on 2/29/2024.
 boolean GantryConfiguration::initialize() {
 
-    logger.log("initializing gantry");
+    logger.log(F("initializing gantry"));
 
-    logger.log("initializing motors x1, x2, y, z, theta");
+    logger.log(F("initializing motors x1, x2, y, z, theta"));
     x1_motor = AccelStepper(AccelStepper::DRIVER, X1_MOTOR_PINS);
     x2_motor = AccelStepper(AccelStepper::DRIVER, X2_MOTOR_PINS);
     y_motor = AccelStepper(AccelStepper::DRIVER, Y_MOTOR_PINS);
@@ -54,7 +54,7 @@ boolean GantryConfiguration::initialize() {
     theta_motor.setAcceleration(THETA_ACCELERATION);
 
 
-    logger.log("limit switch configuration: normally closed. 0 if closed, 1 if open");
+    logger.log(F("limit switch configuration: normally closed. 0 if closed, 1 if open"));
     pinMode(X1_LIMIT_SWITCH_PIN, INPUT_PULLUP);
     pinMode(X2_LIMIT_SWITCH_PIN, INPUT_PULLUP);
     pinMode(Y_LIMIT_SWITCH_PIN, INPUT_PULLUP);
@@ -83,9 +83,10 @@ void GantryConfiguration::updatePosition() {
 }
 
 void GantryConfiguration::homeXAxis() {
-    logger.log("Homing X Axis.");
-
-    logger.log(String("Moving X Axis at ") + X_ZEROING_STEPS_PER_SECOND + " steps per second");
+    logger.log(F("Homing X Axis."));
+    char str[100];
+    sprintf(str, "Moving X Axis at %f steps per second", X_ZEROING_STEPS_PER_SECOND);
+    logger.log(str);
     x1_motor.setSpeed(-X_ZEROING_STEPS_PER_SECOND);
     x2_motor.setSpeed(-X_ZEROING_STEPS_PER_SECOND);
     while (!x1LimitSwitchTriggered() ||
@@ -97,7 +98,7 @@ void GantryConfiguration::homeXAxis() {
     }
 
 
-    logger.log("HIT X AXIS SWITCH. Moving X Axis back...");
+    logger.log(F("HIT X AXIS SWITCH. Moving X Axis back..."));
     x1_motor.setSpeed(X_ZEROING_STEPS_PER_SECOND);
     x2_motor.setSpeed(X_ZEROING_STEPS_PER_SECOND);
     unsigned long currentTime = millis();
@@ -106,7 +107,7 @@ void GantryConfiguration::homeXAxis() {
         x2_motor.runSpeed();
     }
 
-    logger.log("Moving X Axis back...");
+    logger.log(F("Moving X Axis back..."));
     x1_motor.setSpeed(-X_ZEROING_STEPS_PER_SECOND / 2);
     x2_motor.setSpeed(-X_ZEROING_STEPS_PER_SECOND / 2);
     while (!x1LimitSwitchTriggered() ||
@@ -117,7 +118,11 @@ void GantryConfiguration::homeXAxis() {
             x2_motor.runSpeed();
     }
 
-    logger.log(String("Hit X axis switch again. Setting to 0. Delta to old 0: ") + x1_motor.currentPosition() + ", " +
+
+
+
+    logger.log(F("Hit X axis switch again. Setting to 0. Delta to old 0: %f, %f."),
+               x1_motor.currentPosition(),
                x2_motor.currentPosition());
     x1_motor.setCurrentPosition(0);
     x2_motor.setCurrentPosition(0);
@@ -126,29 +131,30 @@ void GantryConfiguration::homeXAxis() {
 
 void GantryConfiguration::homeYAxis() {
 
-    logger.log("Homing Y Axis.");
+    logger.log(F("Homing Y Axis."));
 
-    logger.log(String("Moving Y Axis at ") + Y_ZEROING_STEPS_PER_SECOND + " steps per second");
+    logger.log(F("Moving Y Axis at %f steps per second"),  Y_ZEROING_STEPS_PER_SECOND);
     y_motor.setSpeed(-Y_ZEROING_STEPS_PER_SECOND);
     while (!yLimitSwitchTriggered()) {
         y_motor.runSpeed();
     }
 
 
-    logger.log("HIT Y AXIS SWITCH. Moving Y Axis back...");
+    logger.log(F("HIT Y AXIS SWITCH. Moving Y Axis back..."));
     y_motor.setSpeed(Y_ZEROING_STEPS_PER_SECOND);
     unsigned long currentTime = millis();
     while (millis() <= currentTime + 1000) {
         y_motor.runSpeed();
     }
 
-    logger.log("Moving Y Axis back...");
+    logger.log(F("Moving Y Axis back..."));
     y_motor.setSpeed(-Y_ZEROING_STEPS_PER_SECOND / 2);
     while (!yLimitSwitchTriggered()) {
         y_motor.runSpeed();
     }
 
-    logger.log(String("Hit Y axis switch again. Setting to 0. Delta to old 0: ") + y_motor.currentPosition());
+    logger.log(F("Hit Y axis switch again. Setting to 0. Delta to old 0: %s."),
+               y_motor.currentPosition());
     y_motor.setCurrentPosition(0);
     position.y = 0;
 }
@@ -157,7 +163,7 @@ void GantryConfiguration::homeZAxis() {
     logger.log("Homing Z Axis.");
 
 
-    logger.log(String("Moving Z Axis at ") + Z_ZEROING_STEPS_PER_SECOND + " steps per second");
+    logger.log(F("Moving Z Axis at %f steps per second"), Z_ZEROING_STEPS_PER_SECOND);
     z_motor.moveTo(-1000000000);
     z_motor.setSpeed(-Z_ZEROING_STEPS_PER_SECOND);
     while (!zLimitSwitchTriggered()) {
@@ -177,7 +183,7 @@ void GantryConfiguration::homeZAxis() {
 //        z_motor.runSpeed();
 //    }
 
-    logger.log(String("Hit Z axis switch. Setting to 0. Delta to old 0: ") + z_motor.currentPosition());
+    logger.log(F("Hit Z axis switch. Setting to 0. Delta to old 0: %d"), z_motor.currentPosition());
 
     z_motor.setCurrentPosition(0);
     position.z = 0;
@@ -189,30 +195,30 @@ void GantryConfiguration::homeThetaAxis() {
 
     logger.log("Homing Theta Axis.");
 
-    logger.log(String("Moving Theta Axis at ") + THETA_ZEROING_STEPS_PER_SECOND + " steps per second");
+    logger.log(F("Moving Theta Axis at %f steps per second"), THETA_ZEROING_STEPS_PER_SECOND);
     theta_motor.setSpeed(-THETA_ZEROING_STEPS_PER_SECOND);
     while (!thetaLimitSwitchTriggered()) {
         theta_motor.runSpeed();
     }
 
-    logger.log("HIT Theta AXIS SWITCH. Moving Theta Axis back...");
+    logger.log(F("HIT Theta AXIS SWITCH. Moving Theta Axis back..."));
     theta_motor.setSpeed(THETA_ZEROING_STEPS_PER_SECOND);
     unsigned long currentTime = millis();
     while (millis() <= currentTime + 1000) {
         theta_motor.runSpeed();
     }
 
-    logger.log("Moving Theta Axis back...");
+    logger.log(F("Moving Theta Axis back..."));
     theta_motor.setSpeed(-THETA_ZEROING_STEPS_PER_SECOND);
     while (!thetaLimitSwitchTriggered()) {
         theta_motor.runSpeed();
     }
 
-    logger.log(String("Hit Theta axis switch again. Setting to 0. Delta to old 0: ") + theta_motor.currentPosition());
+    logger.log(F("Hit Theta axis switch again. Setting to 0. Delta to old 0: %d"), theta_motor.currentPosition());
     theta_motor.setCurrentPosition(0);
     position.theta = 0;
     execute("T11.5");
-    logger.log("Moving 11.5 degrees and setting as new 0 point aligned with axes.");
+    logger.log(F("Moving 11.5 degrees and setting as new 0 point aligned with axes."));
     theta_motor.setCurrentPosition(0);
     position.theta = 0;
 

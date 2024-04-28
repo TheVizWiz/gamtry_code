@@ -5,9 +5,26 @@
 #include "Logger.h"
 
 
+static char *flashToString(char *buffer, const __FlashStringHelper *ifsh) {
+    size_t numLetters = 1;
+    PGM_P p = reinterpret_cast<PGM_P>(ifsh);
+    while (1) {
+        unsigned char c = pgm_read_byte(p++);
+        if (c == 0) break;
+        numLetters++;
+    }
+
+
+    for (int i = 0; i < numLetters; i++) {
+        buffer[i] = pgm_read_byte(p + i);
+    }
+
+    return buffer;
+}
+
 static Logger logger = Logger("Logger");
 
-File Logger::logFile = SD.open("log.txt");
+File Logger::logFile;
 
 boolean Logger::initSuccess = false;
 
@@ -23,9 +40,9 @@ boolean Logger::initialize() {
     }
 
     if (!SD.exists(LOGGING_DIR)) {
-        logger.log(String("No logging directory exists. Making with name ") + LOGGING_DIR);
+        logger.log("No logging directory exists. Making with name %s", LOGGING_DIR);
         SD.mkdir(LOGGING_DIR);
-        logger.log(String("made directory. Exists: ") + SD.exists(LOGGING_DIR));
+        logger.log("made directory. Exists: " + SD.exists(LOGGING_DIR));
     }
 
     File directory = SD.open(LOGGING_DIR);
@@ -46,14 +63,12 @@ boolean Logger::initialize() {
         numFiles++;
     }
 
-    String logFileName = String() +
-                         LOGGING_DIR +
-                         "/" +
-                         LOGGING_BASE_NAME
-                         + (numFiles + 1)
-                         + LOGGING_FILE_EXT;
+    char logFileName[100];
 
-    logger.log(String("New log file with name ") + logFileName + " created.");
+
+    sprintf(logFileName, "%s/%s%d%s", LOGGING_DIR, LOGGING_BASE_NAME, numFiles + 1, LOGGING_FILE_EXT);
+
+    logger.log("New log file with name %s created.", logFileName);
 
     logFile = SD.open(logFileName, FILE_WRITE);
     if (!logFile)
@@ -64,7 +79,7 @@ boolean Logger::initialize() {
     return true;
 }
 
-String Logger::getTimeString() {
+char *Logger::getTimeString(char *buffer) {
 
     uint32_t time = millis();
 
@@ -75,256 +90,307 @@ String Logger::getTimeString() {
     uint32_t secs = time / (MILLIS_PER_SECOND);
     uint32_t millis = time % (MILLIS_PER_SECOND);
 
-    String hoursString = String(hrs);
-    String minsString = String(mins);
-    String secsString = String(secs);
-    String millisString = String(millis);
 
-    while (hoursString.length() < 2)
-        hoursString = '0' + hoursString;
-    while (minsString.length() < 2)
-        minsString = '0' + minsString;
-    while (secsString.length() < 2)
-        secsString = '0' + secsString;
-    while (millisString.length() < 3)
-        millisString = millisString + '0';
 
-    String timeString = hoursString + ":" +
-                        minsString + ":" +
-                        secsString + "." + millisString;
+    sprintf(buffer, "%02lu:%02lu:%02lu:%03lu", hrs, mins, secs, millis);
 
-    return timeString;
+    return buffer;
 
 }
 
-String Logger::constructString(const String &s, const String &type) {
-    String message = "";
-#ifdef LOGGING_TIMESTAMPS
-    message = message + "[" + getTimeString() + "] ";
-#endif
+char *Logger::constructLogMessage(const char *s, const char *type) {
 
-    message = message + "(" + type + ") ";
+    char timeString[50];
 
-#ifdef LOGGING_CLASS_NAMES
-    message = message + "{" + className + "} ";
-#endif
+    getTimeString(timeString);
 
-    message += s;
+    sprintf(message, "[%s] (%s) {%s} %s",
+            timeString,
+            type,
+            this->className,
+            s);
 
     return message;
 }
 
 
-boolean Logger::logBare(const String &s) {
-#ifndef LOGGING
-    return false;
-#endif
+boolean Logger::logBare(const char *format, ...) {
+    if (!LOGGING)
+        return false;
 
-    String message = s;
-#ifdef LOGGING_SD_LOGS
-    logFile.println(message);
-#endif
+    char input[MAX_TOTAL_MESSAGE_LENGTH];
 
-#ifndef LOGGING_TO_SERIAL
-    return true;
-#endif
+    va_list args;
+    va_start(args, format);
 
-#ifndef LOGGING_SERIAL_LOGS
-    return true;
-#endif
-
-    Serial.println(message);
-    return true;
-
-}
-
-boolean Logger::log(const String &s) {
+    vsprintf(input, format, args);
 
 
-#ifndef LOGGING
-    return false;
-#endif
+    if (LOGGING_SD_LOGS)
+        logFile.println(input);
 
+    if (LOGGING_TO_SERIAL && LOGGING_SERIAL_LOGS)
+        Serial.println(input);
 
-    String message = constructString(s, "LOG");
-
-#ifdef LOGGING_SD_LOGS
-    logFile.println(message);
-#endif
-
-#ifndef LOGGING_TO_SERIAL
-    return true;
-#endif
-
-#ifndef LOGGING_SERIAL_LOGS
-    return true;
-#endif
-
-    Serial.println(message);
-    return true;
-}
-
-boolean Logger::log(char x) {
-    return log(String(x));
-}
-
-boolean Logger::log(int x) {
-    return log(String(x));
-}
-
-boolean Logger::log(byte x) {
-    return log(String(x));
-}
-
-boolean Logger::log(long x) {
-    return log(String(x));
-}
-
-boolean Logger::log(double x) {
-    return log(String(x));
-}
-
-boolean Logger::warn(const String &s) {
-#ifndef LOGGING
-    return false;
-#endif
-
-
-    String message = constructString(s, "WAR");
-
-#ifdef LOGGING_SD_WARNINGS
-    logFile.println(message);
-#endif
-
-#ifndef LOGGING_TO_SERIAL
-    return true;
-#endif
-
-#ifndef LOGGING_SERIAL_WARNINGS
-    return true;
-#endif
-
-    Serial.println(message);
-    return true;
-}
-
-boolean Logger::warn(char x) {
-    return warn(String(x));
-}
-
-boolean Logger::warn(int x) {
-    return warn(String(x));
-}
-
-boolean Logger::warn(byte x) {
-    return warn(String(x));
-}
-
-boolean Logger::warn(long x) {
-    return warn(String(x));
-}
-
-boolean Logger::warn(double x) {
-    return warn(String(x));
-}
-
-boolean Logger::err(const String &s) {
-#ifndef LOGGING
-    return false;
-#endif
-
-
-    String message = constructString(s, "ERR");
-
-#ifdef LOGGING_SD_ERRORS
-    logFile.println(message);
-#endif
-
-#ifndef LOGGING_TO_SERIAL
-    return true;
-#endif
-
-#ifndef LOGGING_SERIAL_ERRORS
-    return true;
-#endif
-
-    Serial.println(message);
     return true;
 
-
 }
 
-boolean Logger::err(char x) {
-    return err(String(x));
-}
 
-boolean Logger::err(int x) {
-    return err(String(x));
-}
+boolean Logger::log(const char *format, ...) {
 
-boolean Logger::err(byte x) {
-    return err(String(x));
-}
-
-boolean Logger::err(long x) {
-    return err(String(x));
-}
-
-boolean Logger::err(double x) {
-    return err(String(x));
-}
-
-boolean Logger::debug(const String &s) {
-#ifndef LOGGING
-    return false;
-#endif
+    if (!LOGGING)
+        return false;
 
 
-    String message = constructString(s, "DEB");
+    char input[MAX_TOTAL_MESSAGE_LENGTH];
 
-#ifndef LOGGING_SD_DEBUGS
-    logFile.println(message);
-#endif
+    va_list args;
+    va_start(args, format);
 
-#ifndef LOGGING_TO_SERIAL
-    return true;
-#endif
 
-#ifndef LOGGING_SERIAL_DEBUGS
-    return true;
-#endif
+    vsprintf(input, format, args);
 
-    Serial.println(message);
+    char *message = constructLogMessage(input, "LOG");
+
+
+    if (LOGGING_SD_LOGS)
+        logFile.println(message);
+
+    if (LOGGING_TO_SERIAL && LOGGING_SERIAL_LOGS)
+        Serial.println(message);
+
+    free(message);
     return true;
 
+}
+
+boolean Logger::warn(const char *format, ...) {
+
+    if (!LOGGING)
+        return false;
+
+
+    char input[MAX_TOTAL_MESSAGE_LENGTH];
+
+    va_list args;
+    va_start(args, format);
+
+    vsprintf(input, format, args);
+
+    constructLogMessage(input, "WAR");
+
+
+    if (LOGGING_SD_WARNINGS)
+        logFile.println(message);
+
+    if (LOGGING_TO_SERIAL && LOGGING_SERIAL_WARNINGS)
+        Serial.println(message);
+
+    free(message);
+    return true;
 
 }
 
-boolean Logger::debug(char x) {
-    return debug(String(x));
+boolean Logger::err(const char *format, ...) {
+
+    if (!LOGGING)
+        return false;
+
+
+    char input[MAX_TOTAL_MESSAGE_LENGTH];
+
+    va_list args;
+    va_start(args, format);
+
+    vsprintf(input, format, args);
+
+    char *message = constructLogMessage(input, "ERR");
+
+
+    if (LOGGING_SD_ERRORS)
+        logFile.println(message);
+
+    if (LOGGING_TO_SERIAL && LOGGING_SERIAL_ERRORS)
+        Serial.println(message);
+
+    free(message);
+    return true;
+
 }
 
-boolean Logger::debug(int x) {
-    return debug(String(x));
+boolean Logger::debug(const char *format, ...) {
+
+    if (!LOGGING)
+        return false;
+
+
+    char input[MAX_TOTAL_MESSAGE_LENGTH];
+
+    va_list args;
+    va_start(args, format);
+
+    vsprintf(input, format, args);
+
+    char *message = constructLogMessage(input, "DEB");
+
+
+    if (LOGGING_SD_DEBUGS)
+        logFile.println(message);
+
+    if (LOGGING_TO_SERIAL && LOGGING_SERIAL_DEBUGS)
+        Serial.println(message);
+
+    free(message);
+    return true;
+
 }
 
-boolean Logger::debug(byte x) {
-    return debug(String(x));
+
+Logger::Logger(char *className) {
+    strcpy(this->className, className);
 }
 
-boolean Logger::debug(long x) {
-    return debug(String(x));
+boolean Logger::log(const __FlashStringHelper *format, ...) {
+    va_list args;
+    va_start(args, format);
+
+    char *stringFormat = flashToString(formatBuffer, format);
+
+    boolean success = vlog(stringFormat, args);
+    return success;
 }
 
-boolean Logger::debug(double x) {
-    return debug(String(x));
+boolean Logger::err(const __FlashStringHelper *format, ...) {
+    va_list args;
+    va_start(args, format);
+
+    char *stringFormat = flashToString(formatBuffer, format);
+
+    boolean success = verr(stringFormat, args);
+    free(stringFormat);
+    return success;
 }
 
-Logger::Logger(String className) {
-    this->className = className.c_str();
+boolean Logger::warn(const __FlashStringHelper *format, ...) {
+    va_list args;
+    va_start(args, format);
+
+    char *stringFormat = flashToString(formatBuffer, format);
+
+    boolean success = vwarn(stringFormat, args);
+    free(stringFormat);
+    return success;
 }
 
-Logger::Logger(char *className) : Logger(String(className)) {}
+boolean Logger::debug(const __FlashStringHelper *format, ...) {
+    va_list args;
+    va_start(args, format);
+
+    char *stringFormat = flashToString(formatBuffer, format);
+
+    boolean success = vdebug(stringFormat, args);
+    free(stringFormat);
+    return success;
+}
+
+boolean Logger::vlog(const char *format, va_list args) {
+
+    if (!LOGGING)
+        return false;
+
+
+    char input[MAX_TOTAL_MESSAGE_LENGTH];
+
+
+    vsprintf(input, format, args);
+
+    char *message = constructLogMessage(input, "LOG");
+
+
+    if (LOGGING_SD_LOGS)
+        logFile.println(message);
+
+    if (LOGGING_TO_SERIAL && LOGGING_SERIAL_LOGS)
+        Serial.println(message);
+
+    free(message);
+    return true;
+}
+
+boolean Logger::verr(const char *format, va_list args) {
+
+    if (!LOGGING)
+        return false;
+
+
+    char input[MAX_TOTAL_MESSAGE_LENGTH];
+
+
+    vsprintf(input, format, args);
+
+    char *message = constructLogMessage(input, "ERR");
+
+
+    if (LOGGING_SD_LOGS)
+        logFile.println(message);
+
+    if (LOGGING_TO_SERIAL && LOGGING_SERIAL_LOGS)
+        Serial.println(message);
+
+    free(message);
+    return true;
+}
+
+boolean Logger::vwarn(const char *format, va_list args)     {
+
+    if (!LOGGING)
+        return false;
+
+
+    char input[MAX_TOTAL_MESSAGE_LENGTH];
+
+
+    vsprintf(input, format, args);
+
+    char *message = constructLogMessage(input, "WAR");
+
+
+    if (LOGGING_SD_LOGS)
+        logFile.println(message);
+
+    if (LOGGING_TO_SERIAL && LOGGING_SERIAL_LOGS)
+        Serial.println(message);
+
+    free(message);
+
+    return true;
+}
+
+boolean Logger::vdebug(const char *format, va_list args) {
+
+    if (!LOGGING)
+        return false;
+
+
+    char input[MAX_TOTAL_MESSAGE_LENGTH];
+
+
+    vsprintf(input, format, args);
+
+    char *message = constructLogMessage(input, "LOG");
+
+
+    if (LOGGING_SD_LOGS)
+        logFile.println(message);
+
+    if (LOGGING_TO_SERIAL && LOGGING_SERIAL_LOGS)
+        Serial.println(message);
+
+    free(message);
+
+    return true;
+}
 
 
 
