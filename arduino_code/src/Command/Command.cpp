@@ -207,7 +207,7 @@ void Command::executeHeadChange(GantryConfiguration &gantry) {
 
     logger.log("Received Head Change command. Executing...");
     logger.log(String("Current gantry position: ") + gantry.position.head + " new wanted: " + head);
-    gantry.execute("G60");
+    gantry.execute("G65");
 
 
     if (head == 0) {
@@ -218,26 +218,34 @@ void Command::executeHeadChange(GantryConfiguration &gantry) {
 
         if (gantry.position.head == 1) {
             String commands[] = {
-                    "Z67",
-                    "Y352",
-                    "X280",
-                    "X344 t2",
-                    "Z49",
-                    "X280"
-            };
-            gantry.execute(commands, 6);
-        } else if (gantry.position.head == 2) {
-            String commands[] = {
                     "Z68",
-                    "Y474",
+                    "Y377.5",
                     "X280",
                     "X344 t2",
                     "Z50",
                     "X280"
             };
             gantry.execute(commands, 6);
+        } else if (gantry.position.head == 2) {
+            String commands[] = {
+                    "Z67.5",
+                    "Y477.5",
+                    "X280",
+                    "X344 t2",
+                    "Z50",
+                    "X280"
+            }; 
+            gantry.execute(commands, 6);
         } else if (gantry.position.head == 3) {
-
+            String commands[] = {
+                    "Z74",
+                    "Y261",
+                    "X280",
+                    "X344 t2",
+                    "Z58",
+                    "X280"
+            }; 
+            gantry.execute(commands, 6);
         }
 
         gantry.position.head = 0;
@@ -249,13 +257,13 @@ void Command::executeHeadChange(GantryConfiguration &gantry) {
 
         if (gantry.position.head == 0) {
             String commands[] = {
-                    "Z90",
-                    "Y352",
+                    "Z100",
+                    "Y377.5",
                     "X344",
                     "Z65",
                     "Z67",
                     "X280 t2",
-                    String("G") + MIN_G
+                    String("G") + 50
             };
             gantry.execute(commands, 7);
         } else {
@@ -270,8 +278,8 @@ void Command::executeHeadChange(GantryConfiguration &gantry) {
 
         if (gantry.position.head == 0) {
             String commands[] = {
-                    "Z90",
-                    "Y474",
+                    "Z100",
+                    "Y477.5",
                     "X344",
                     "Z65",
                     "Z67",
@@ -293,11 +301,11 @@ void Command::executeHeadChange(GantryConfiguration &gantry) {
 
         if (gantry.position.head == 0) {
             String commands[] = {
-                    "Z95",
-                    "Y474",
-                    "X344",
-                    "Z65",
-                    "Z67",
+                    "Z100",
+                    "Y261",
+                    "X341",
+                    "Z69",
+                    "Z70",
                     "X280 t2",
             };
             gantry.execute(commands, 6);

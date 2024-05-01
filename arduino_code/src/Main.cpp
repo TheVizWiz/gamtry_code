@@ -87,14 +87,11 @@ void loop() {
     if (command.isNoCommand())
         return;
 
-    Serial.println("Done");
-    Serial1.println("Done");
+    Serial.println("Running");
+    Serial1.println("Running");
 
     command.execute(gantry);
-
-
+    Serial.println("Done"); 
+    Serial1.println("Done"); 
 
 }
-
-
-
