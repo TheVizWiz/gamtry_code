@@ -492,22 +492,12 @@ void Command::drawLetter(GantryConfiguration &gantry,
 
 
     if (letter == '0') {
+        drawLetter(gantry, 'O', x_start, y_start, width, height, z_start, z_jump);
         String commands[] = {
-                getXYWriteCoordinates(data, 1 / 4.0, 0),
-                down,
-                getXYWriteCoordinates(data, 0, 1 / 6.0),
-                getXYWriteCoordinates(data, 0, 5 / 6.0),
-                getXYWriteCoordinates(data, 1 / 4.0, 1),
-                getXYWriteCoordinates(data, 3 / 4.0, 1),
-                getXYWriteCoordinates(data, 1, 5 / 6.0),
-                getXYWriteCoordinates(data, 1, 1 / 6.0),
-                getXYWriteCoordinates(data, 3 / 4.0, 0),
-                getXYWriteCoordinates(data, 1 / 4.0, 0),
-                up,
                 getXYWriteCoordinates(data, 1 / 8.0, 1 / 12.0),
                 down,
-                getXYWriteCoordinates(data, 7 / 8.0, 11 / 12.0),};
-        gantry.execute(commands, 14);
+                getXYWriteCoordinates(data, 7 / 8.0, 11 / 12.0)};
+        gantry.execute(commands, 3);
     } else if (letter == '1') {
         String commands[] = {
                 getXYWriteCoordinates(data, 0, 0),
@@ -652,17 +642,60 @@ void Command::drawLetter(GantryConfiguration &gantry,
                 getXYWriteCoordinates(data, 1, 0)
         };
         gantry.execute(commands, 11);
-    } else if (letter == 'M') {
+    } else if (letter == 'A') {
         String commands[] = {
                 getXYWriteCoordinates(data, 0, 0),
                 down,
-                getXYWriteCoordinates(data, 0, 1),
-                getXYWriteCoordinates(data, 1 / 2.0, 1 / 2.0),
-                getXYWriteCoordinates(data, 1, 1),
-                getXYWriteCoordinates(data, 1, 0)
-        };
-        gantry.execute(commands, 6);
+                getXYWriteCoordinates(data, 0.5, 1),
+                getXYWriteCoordinates(data, 1.0, 1),
+                up,
+                getXYWriteCoordinates(data, 0.25, 0.5),
+                down,
+                getXYWriteCoordinates(data, 0.75, 0.5),
 
+        };
+        gantry.execute(commands, 8);
+    } else if (letter == 'B') {
+        String commands[] = {
+                getXYWriteCoordinates(data, 0.5, 0.5),
+                down,
+                getXYWriteCoordinates(data, 1, 2 / 6.0),
+                getXYWriteCoordinates(data, 1, 1 / 6.0),
+                getXYWriteCoordinates(data, 1 / 2.0, 0),
+                getXYWriteCoordinates(data, 0, 0),
+                getXYWriteCoordinates(data, 0, 1),
+                getXYWriteCoordinates(data, 1 / 2.0, 1),
+                getXYWriteCoordinates(data, 1, 5 / 6.0),
+                getXYWriteCoordinates(data, 1, 4 / 6.0),
+                getXYWriteCoordinates(data, 1 / 2.0, 1 / 2.0),
+                getXYWriteCoordinates(data, 0, 1 / 2.0),
+        };
+        gantry.execute(commands, 12);
+    } else if (letter == 'C') {
+        String commands[] = {
+                getXYWriteCoordinates(data, 1, 3 / 4.0),
+                down,
+                getXYWriteCoordinates(data, 3 / 4.0, 1),
+                getXYWriteCoordinates(data, 1 / 4.0, 1),
+                getXYWriteCoordinates(data, 0, 3 / 4.0),
+                getXYWriteCoordinates(data, 0, 1 / 4.0),
+                getXYWriteCoordinates(data, 1 / 4.0, 0),
+                getXYWriteCoordinates(data, 3 / 4.0, 0),
+                getXYWriteCoordinates(data, 1, 1 / 4.0),
+        };
+        gantry.execute(commands, 9);
+    } else if (letter == 'D') {
+        String commands[] = {
+                getXYWriteCoordinates(data, 0, 1),
+                down,
+                getXYWriteCoordinates(data, 3 / 4.0, 1),
+                getXYWriteCoordinates(data, 1, 3 / 4.0),
+                getXYWriteCoordinates(data, 1, 1 / 4.0),
+                getXYWriteCoordinates(data, 3 / 4.0, 0),
+                getXYWriteCoordinates(data, 0, 0),
+                getXYWriteCoordinates(data, 0, 1)
+        };
+        gantry.execute(commands, 7);
     } else if (letter == 'E') {
         String commands[] = {
                 getXYWriteCoordinates(data, 1, 1),
@@ -677,6 +710,18 @@ void Command::drawLetter(GantryConfiguration &gantry,
         };
         gantry.execute(commands, 9);
 
+    } else if (letter == 'F') {
+        String commands[] = {
+                getXYWriteCoordinates(data, 1, 1),
+                down,
+                getXYWriteCoordinates(data, 0, 1),
+                getXYWriteCoordinates(data, 0, 0),
+                up,
+                getXYWriteCoordinates(data, 0, 1 / 2.0),
+                down,
+                getXYWriteCoordinates(data, 1 / 2.0, 1 / 2.0),
+        };
+        gantry.execute(commands, 8);
 
     } else if (letter == 'G') {
         String commands[] = {
@@ -690,6 +735,254 @@ void Command::drawLetter(GantryConfiguration &gantry,
                 getXYWriteCoordinates(data, 1 / 3.0, 1 / 3.0)
         };
         gantry.execute(commands, 8);
+    } else if (letter == 'H') {
+        String commands[] = {
+                getXYWriteCoordinates(data, 0, 1),
+                down,
+                getXYWriteCoordinates(data, 0, 0),
+                up,
+                getXYWriteCoordinates(data, 0, 0.5),
+                down,
+                getXYWriteCoordinates(data, 1, 0.5),
+                up,
+                getXYWriteCoordinates(data, 1, 1),
+                getXYWriteCoordinates(data, 1, 0),
+        };
+        gantry.execute(commands, 9);
+
+    } else if (letter == 'I') {
+        String commands[] = {
+                getXYWriteCoordinates(data, 0, 1),
+                down,
+                getXYWriteCoordinates(data, 1, 1),
+                up,
+                getXYWriteCoordinates(data, 1 / 2.0, 1),
+                down,
+                getXYWriteCoordinates(data, 1 / 2.0, 0),
+                up,
+                getXYWriteCoordinates(data, 0, 0),
+                down,
+                getXYWriteCoordinates(data, 1, 0)
+        };
+        gantry.execute(commands, 11);
+
+    } else if (letter == 'J') {
+        String commands[] = {
+                getXYWriteCoordinates(data, 0, 1),
+                down,
+                getXYWriteCoordinates(data, 1, 1),
+                up,
+                getXYWriteCoordinates(data, 3 / 4.0, 1),
+                down,
+                getXYWriteCoordinates(data, 3 / 4.0, 1 / 4.0),
+                getXYWriteCoordinates(data, 1 / 2.0, 0),
+                getXYWriteCoordinates(data, 1 / 4.0, 0),
+                getXYWriteCoordinates(data, 0, 1 / 4.0)
+        };
+        gantry.execute(commands, 10);
+
+    } else if (letter == 'K') {
+        String commands[] = {
+                getXYWriteCoordinates(data, 0, 1),
+                down,
+                getXYWriteCoordinates(data, 0, 0),
+                up,
+                getXYWriteCoordinates(data, 1, 1),
+                down,
+                getXYWriteCoordinates(data, 0, 1 / 2.0),
+                getXYWriteCoordinates(data, 1, 0)
+        };
+        gantry.execute(commands, 8);
+
+    } else if (letter == 'L') {
+
+        String commands[] = {
+                getXYWriteCoordinates(data, 0, 1),
+                down,
+                getXYWriteCoordinates(data, 0, 0),
+                getXYWriteCoordinates(data, 1, 0)
+        };
+        gantry.execute(commands, 4);
+
+    } else if (letter == 'M') {
+        String commands[] = {
+                getXYWriteCoordinates(data, 0, 0),
+                down,
+                getXYWriteCoordinates(data, 0, 1),
+                getXYWriteCoordinates(data, 1 / 2.0, 1 / 2.0),
+                getXYWriteCoordinates(data, 1, 1),
+                getXYWriteCoordinates(data, 1, 0)
+        };
+        gantry.execute(commands, 6);
+
+    } else if (letter == 'N') {
+        String commands[] = {
+                getXYWriteCoordinates(data, 0, 0),
+                down,
+                getXYWriteCoordinates(data, 0, 1),
+                getXYWriteCoordinates(data, 1, 0),
+                getXYWriteCoordinates(data, 1, 1)
+        };
+        gantry.execute(commands, 5);
+
+    } else if (letter == 'O') {
+        String commands[] = {
+                getXYWriteCoordinates(data, 1 / 4.0, 0),
+                down,
+                getXYWriteCoordinates(data, 0, 1 / 6.0),
+                getXYWriteCoordinates(data, 0, 5 / 6.0),
+                getXYWriteCoordinates(data, 1 / 4.0, 1),
+                getXYWriteCoordinates(data, 3 / 4.0, 1),
+                getXYWriteCoordinates(data, 1, 5 / 6.0),
+                getXYWriteCoordinates(data, 1, 1 / 6.0),
+                getXYWriteCoordinates(data, 3 / 4.0, 0),
+                getXYWriteCoordinates(data, 1 / 4.0, 0),
+        };
+        gantry.execute(commands, 10);
+
+    } else if (letter == 'P') {
+        String commands[] = {
+                getXYWriteCoordinates(data, 0, 0),
+                down,
+                getXYWriteCoordinates(data, 0, 1),
+                getXYWriteCoordinates(data, 3 / 4.0, 1),
+                getXYWriteCoordinates(data, 1, 5 / 6.0),
+                getXYWriteCoordinates(data, 1, 4 / 6.0),
+                getXYWriteCoordinates(data, 3 / 4.0, 1 / 2.0),
+                getXYWriteCoordinates(data, 0, 1 / 2.0),
+        };
+        gantry.execute(commands, 8);
+
+    } else if (letter == 'Q') {
+        drawLetter(gantry, 'O', x_start, y_start, width, height, z_start, z_jump);
+        String commands[] = {
+                getXYWriteCoordinates(data, 2 / 3.0, 1 / 3.0),
+                down,
+                getXYWriteCoordinates(data, 1, 0)
+        };
+
+        gantry.execute(commands, 3);
+
+    } else if (letter == 'R') {
+        drawLetter(gantry, 'P', x_start, y_start, width, height, z_start, z_jump);
+        String commands[] = {
+                getXYWriteCoordinates(data, 1 / 2.0, 1 / 2.0),
+                down,
+                getXYWriteCoordinates(data, 1, 0)
+        };
+        gantry.execute(commands, 3);
+
+    } else if (letter == 'S') {
+        String commands[] = {
+                getXYWriteCoordinates(data, 1, 1),
+                down,
+                getXYWriteCoordinates(data, 1 / 4.0, 1),
+                getXYWriteCoordinates(data, 0, 5 / 6.0),
+                getXYWriteCoordinates(data, 0, 4 / 6.0),
+                getXYWriteCoordinates(data, 1 / 4.0, 1 / 2.0),
+                getXYWriteCoordinates(data, 3 / 4.0, 1 / 2.0),
+                getXYWriteCoordinates(data, 1, 2 / 6.0),
+                getXYWriteCoordinates(data, 1, 1 / 6.0),
+                getXYWriteCoordinates(data, 3 / 4.0, 0),
+                getXYWriteCoordinates(data, 0, 0)
+        };
+        gantry.execute(commands, 11);
+
+    } else if (letter == 'T') {
+
+        String commands[] = {
+                getXYWriteCoordinates(data, 0, 1),
+                down,
+                getXYWriteCoordinates(data, 1, 1),
+                up,
+                getXYWriteCoordinates(data, 1 / 2.0, 1),
+                down,
+                getXYWriteCoordinates(data, 1 / 2.0, 0)
+        };
+        gantry.execute(commands, 7);
+
+    } else if (letter == 'U') {
+
+        String commands[] = {
+                getXYWriteCoordinates(data, 0, 1),
+                down,
+                getXYWriteCoordinates(data, 0, 1 / 4.0),
+                getXYWriteCoordinates(data, 1 / 4.0, 0),
+                getXYWriteCoordinates(data, 3 / 4.0, 0),
+                getXYWriteCoordinates(data, 1, 1 / 4.0),
+                getXYWriteCoordinates(data, 1, 1)
+        };
+        gantry.execute(commands, 7);
+    } else if (letter == 'V') {
+        String commands[] = {
+                getXYWriteCoordinates(data, 0, 1),
+                down,
+                getXYWriteCoordinates(data, 0.5, 0),
+                getXYWriteCoordinates(data, 1, 1)
+        };
+        gantry.execute(commands, 4);
+    } else if (letter == 'W') {
+        String commands[] = {
+                getXYWriteCoordinates(data, 0, 1),
+                down,
+                getXYWriteCoordinates(data, 1 / 4.0, 0),
+                getXYWriteCoordinates(data, 1 / 2.0, 1 / 2.0),
+                getXYWriteCoordinates(data, 3 / 4.0, 0),
+                getXYWriteCoordinates(data, 1, 1)
+        };
+        gantry.execute(commands, 6);
+
+    } else if (letter == 'X') {
+
+        String commands[] = {
+                getXYWriteCoordinates(data, 0, 1),
+                down,
+                getXYWriteCoordinates(data, 1, 0),
+                up,
+                getXYWriteCoordinates(data, 1, 1),
+                down,
+                getXYWriteCoordinates(data, 0, 0)
+        };
+
+        gantry.execute(commands, 7);
+    } else if (letter == 'Y') {
+
+        String commands[] = {
+                getXYWriteCoordinates(data, 0, 1),
+                down,
+                getXYWriteCoordinates(data, 1 / 2.0, 1 / 2.0),
+                getXYWriteCoordinates(data, 1, 1),
+                up,
+                getXYWriteCoordinates(data, 1 / 2.0, 1 / 2.0),
+                down,
+                getXYWriteCoordinates(data, 1 / 2.0, 0)
+        };
+        gantry.execute(commands, 8);
+
+    } else if (letter == 'Z') {
+        String commands[] = {
+                getXYWriteCoordinates(data, 0, 1),
+                down,
+                getXYWriteCoordinates(data, 1, 1),
+                getXYWriteCoordinates(data, 0, 0),
+                getXYWriteCoordinates(data, 1, 0)
+        };
+        gantry.execute(commands, 5);
+
+    } else if (letter == '/') {
+        String commands[] = {
+                getXYWriteCoordinates(data, 1, 1),
+                down,
+                getXYWriteCoordinates(data, 0, 0),
+        };
+
+        gantry.execute(commands, 3);
+    } else if (letter == '.') {
+        String commands[] = {
+                getXYWriteCoordinates(data, 0.5, 0),
+                down
+        };
+        gantry.execute(commands, 2);
     }
 
     gantry.execute(up);
