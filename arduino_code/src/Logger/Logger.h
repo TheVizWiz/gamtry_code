@@ -6,7 +6,7 @@
 #define ARDUINO_CODE_LOGGER_H
 
 #include "Arduino.h"
-#include "SD.h"
+//#include "SD.h"
 
 
 #define LOGGING_DIR "gamtryLogging"
@@ -95,7 +95,7 @@ public:
 
 
 private:
-    static File logFile;
+//    static File logFile;
     static boolean initSuccess;
 
 public:

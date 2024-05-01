@@ -41,7 +41,7 @@ private: //static variables
     static const char COMMAND_ERR = 'e';
 
     static const char COMMAND_GRIPPER = 'G';
-    static const char COMMAND_GLUE = 'L';
+    static const char COMMAND_GLUE = 'F';
     static const char COMMAND_READ = 'R';
 
 

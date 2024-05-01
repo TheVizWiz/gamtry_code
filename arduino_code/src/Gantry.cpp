@@ -38,6 +38,7 @@ boolean GantryConfiguration::initialize() {
     y_motor = AccelStepper(AccelStepper::DRIVER, Y_MOTOR_PINS);
     z_motor = AccelStepper(AccelStepper::DRIVER, Z_MOTOR_PINS);
     theta_motor = AccelStepper(AccelStepper::DRIVER, THETA_MOTOR_PINS);
+    glue_motor = AccelStepper(AccelStepper::DRIVER, GLUE_MOTOR_PINS);
 
 
     x1_motor.setMaxSpeed(X_MAX_STEPS_PER_SECOND);
@@ -45,6 +46,7 @@ boolean GantryConfiguration::initialize() {
     y_motor.setMaxSpeed(Y_MAX_STEPS_PER_SECOND);
     z_motor.setMaxSpeed(Z_MAX_STEPS_PER_SECOND);
     theta_motor.setMaxSpeed(THETA_MAX_STEPS_PER_SECOND);
+    glue_motor.setMaxSpeed(GLUE_MAX_STEPS_PER_SECOND);
 
 
     x1_motor.setAcceleration(X_ACCELERATION);

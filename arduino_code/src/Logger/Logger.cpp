@@ -7,12 +7,13 @@
 
 static Logger logger = Logger("Logger");
 
-File Logger::logFile = SD.open("log.txt");
 
 boolean Logger::initSuccess = false;
 
 boolean Logger::initialize() {
 
+
+    /**
     logger.log("Trying to open SD card...");
 
     pinMode(SD_SELECT_PIN, OUTPUT);
@@ -60,6 +61,7 @@ boolean Logger::initialize() {
         return false;
 
     logger.log("Successfully opened log file.");
+     */
     initSuccess = true;
     return true;
 }
@@ -283,7 +285,7 @@ boolean Logger::debug(const String &s) {
     String message = constructString(s, "DEB");
 
 #ifndef LOGGING_SD_DEBUGS
-    logFile.println(message);
+//    logFile.println(message);
 #endif
 
 #ifndef LOGGING_TO_SERIAL

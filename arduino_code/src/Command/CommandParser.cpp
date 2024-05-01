@@ -108,8 +108,8 @@ Command CommandParser::parse(String input) {
                 return command;
 
             case COMMAND_GLUE:
-                command.type = CommandType::GLUE_COMMAND;
-                command.glue_speed = amount.toFloat();
+//                command.type = CommandType::GLUE_COMMAND;
+                command.glue_mm = amount.toFloat();
                 break;
 
                 // all other commands considered base commands

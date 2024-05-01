@@ -55,7 +55,7 @@ public:
     String fileName;
     float base_size = 20.0;
     float char_x_multiplier = 1.2;//
-    float glue_speed = 0.0f;
+    float glue_mm = 0.0f;
 
 
 private:

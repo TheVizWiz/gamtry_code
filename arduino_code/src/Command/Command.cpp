@@ -63,8 +63,9 @@ void Command::executeBase(GantryConfiguration &gantry) {
 //    Serial._println(gantry.position.x);
 //    Serial.print("Wanted x position: ");
 //    Serial._println(x);
-    logger.log("Executing base command.");
+    logger.log("Executing base/glue command.");
 
+    gantry.glue_motor.setCurrentPosition(0);
 
     if (z_changed) {
         logger.log("Z moved. Calculating new z...");
@@ -86,27 +87,23 @@ void Command::executeBase(GantryConfiguration &gantry) {
     y = max(min(y, MAX_Y_MM), 0);
     theta = max(min(theta, MAX_THETA_DEG), 0);
 
-
     double dx = x_changed ? (x - gantry.position.x) : 0; // mm
     double dy = y_changed ? (y - gantry.position.y) : 0; // mm
     double dtheta = theta_changed ? (theta - gantry.position.theta) : 0; // mm
-
+    double dglue = glue_mm;
 
 
     double min_x_time = abs(dx) / X_MAX_MM_PER_SECOND; // mm / (mm / s) = mm * s / mm = s = seconds
     double min_y_time = abs(dy) / Y_MAX_MM_PER_SECOND; // mm / (mm / s) = mm * s / mm = s = seconds
     double min_theta_time = abs(dtheta) / THETA_MAX_DEG_PER_SECOND; // deg / (deg / s) = deg * s / deg = s = seconds
-//
-    Serial.println(min_x_time);
-    Serial.println(min_y_time);
-    Serial.println(min_theta_time);
+    double min_glue_time = abs(dglue) / GLUE_MAX_MM_PER_SECOND;
 
+    //
     time = max(min_x_time, time);
     time = max(min_y_time, time);
     time = max(min_theta_time, time);
+    time = max(min_glue_time, time);
 
-
-    Serial.println("hello world");
 
     logger.log(String("time for total movement:") + time);
 
@@ -118,11 +115,13 @@ void Command::executeBase(GantryConfiguration &gantry) {
     double x_speed_mm = dx / time; // mm per second
     double y_speed_mm = dy / time; // mm per second
     double theta_speed_mm = dtheta / time; // deg per second
+    double glue_speed_mm = dglue / time;
 
 
     double x_speed_steps = x_speed_mm * X_STEPS_PER_MM; // steps per second
     double y_speed_steps = y_speed_mm * Y_STEPS_PER_MM; // steps per second
     double theta_speed_steps = theta_speed_mm * THETA_STEPS_PER_DEG; // steps per second
+    double glue_speed_steps = glue_speed_mm * GLUE_STEPS_PER_MM;
 
     Serial.println("moving");
 //    Serial.print("Calculated speed: ");
@@ -146,12 +145,15 @@ void Command::executeBase(GantryConfiguration &gantry) {
         gantry.theta_motor.setSpeed(theta_speed_steps);
     }
 
+    gantry.glue_motor.moveTo(glue_mm * GLUE_STEPS_PER_MM);
+    gantry.glue_motor.setSpeed(glue_speed_steps);
+
 
     long x_wanted = x * X_STEPS_PER_MM;
     long y_wanted = y * Y_STEPS_PER_MM;
     long z_wanted = z * Z_STEPS_PER_MM;
     long theta_wanted = theta * THETA_STEPS_PER_DEG;
-
+    unsigned long startMillis = millis();
 
     while (true) {
 
@@ -166,8 +168,10 @@ void Command::executeBase(GantryConfiguration &gantry) {
         boolean theta_finished = !theta_changed ||
                                  gantry.theta_motor.currentPosition() == gantry.theta_motor.targetPosition();
 
+        boolean glue_finished = gantry.glue_motor.currentPosition() == gantry.glue_motor.targetPosition();
 
-        if (x_finished && y_finished && theta_finished)
+
+        if (x_finished && y_finished && theta_finished && glue_finished)
             break;
 
 
@@ -182,6 +186,8 @@ void Command::executeBase(GantryConfiguration &gantry) {
             gantry.theta_motor.runSpeedToPosition();
 
 
+        gantry.glue_motor.runSpeedToPosition();
+
         gantry.updatePosition();
     }
 
@@ -190,6 +196,7 @@ void Command::executeBase(GantryConfiguration &gantry) {
     gantry.y_motor.setSpeed(0);
     gantry.z_motor.setSpeed(0);
     gantry.theta_motor.setSpeed(0);
+    gantry.glue_motor.setSpeed(0);
 
     logger.log("Successfully executed base command.");
     logger.log(String("Current gantry position: ") + gantry.position.toString());
@@ -200,49 +207,106 @@ void Command::executeHeadChange(GantryConfiguration &gantry) {
 
     logger.log("Received Head Change command. Executing...");
     logger.log(String("Current gantry position: ") + gantry.position.head + " new wanted: " + head);
+    gantry.execute("G60");
 
-    switch (gantry.position.head) {
-        case 0:
-            switch (head) {
-                case 0:
-                    break;
-                case 1:
-                    logger.log("Switching from no head to Gripper.");
-                    String commands[] = {
-                            "Z95",
-                            "Y266",
-                            "X341",
-                            "Z65",
-                            "Z67",
-                            "X280 t2",
-                            String("G") + MIN_G
-                    };
-                    gantry.execute(commands, 7);
-                    logger.log("successfully changed head to head 1: Gripper.");
-                    break;
-            }
-            gantry.position.head = 1;
-            break;
-        case 1:
-            switch (head) {
-                case 0:
-                    logger.log("Switching from Gripper head to no head.");
-                    String commands[] = {
-                            "Z67",
-                            "Y266",
-                            "X280",
-                            "X341 t2",
-                            "Z48",
-                            "X280"
-                    };
-                    gantry.execute(commands, 6);
-                    logger.log("Successfully switched from Gripper to no head.");
-                    break;
-            }
-            gantry.position.head = 0;
-            break;
-        case 2:
-            break;
+
+    if (head == 0) {
+
+        if (gantry.position.head == 0)
+            return;
+
+
+        if (gantry.position.head == 1) {
+            String commands[] = {
+                    "Z67",
+                    "Y352",
+                    "X280",
+                    "X344 t2",
+                    "Z49",
+                    "X280"
+            };
+            gantry.execute(commands, 6);
+        } else if (gantry.position.head == 2) {
+            String commands[] = {
+                    "Z68",
+                    "Y474",
+                    "X280",
+                    "X344 t2",
+                    "Z50",
+                    "X280"
+            };
+            gantry.execute(commands, 6);
+        } else if (gantry.position.head == 3) {
+
+        }
+
+        gantry.position.head = 0;
+    } else if (head == 1) {
+
+
+        if (gantry.position.head == 1)
+            return;
+
+        if (gantry.position.head == 0) {
+            String commands[] = {
+                    "Z90",
+                    "Y352",
+                    "X344",
+                    "Z65",
+                    "Z67",
+                    "X280 t2",
+                    String("G") + MIN_G
+            };
+            gantry.execute(commands, 7);
+        } else {
+            gantry.execute("H0");
+            gantry.execute("H1");
+        }
+        gantry.position.head = 1;
+
+    } else if (head == 2) {
+        if (gantry.position.head == 2)
+            return;
+
+        if (gantry.position.head == 0) {
+            String commands[] = {
+                    "Z90",
+                    "Y474",
+                    "X344",
+                    "Z65",
+                    "Z67",
+                    "X280 t2",
+            };
+            gantry.execute(commands, 6);
+        } else {
+            gantry.execute("H0");
+            gantry.execute("H2");
+        }
+
+        gantry.position.head = 2;
+
+
+    } else if (head == 3) {
+
+        if (gantry.position.head == 3)
+            return;
+
+        if (gantry.position.head == 0) {
+            String commands[] = {
+                    "Z95",
+                    "Y474",
+                    "X344",
+                    "Z65",
+                    "Z67",
+                    "X280 t2",
+            };
+            gantry.execute(commands, 6);
+        } else {
+            gantry.execute("H0");
+            gantry.execute("H3");
+        }
+        gantry.position.head = 3;
+
     }
 
 }
@@ -342,35 +406,35 @@ void Command::executeGripper(GantryConfiguration &gantry) {
 }
 
 void Command::executeRead(GantryConfiguration &gantry) {
-
-    File file = SD.open(String("commands/") + fileName,FILE_READ);
-    if (!file) {
-        logger.log("no such file exists. Unable to read command");
-    }
-
-    logger.log(String("file with filename ") + file.name() + " found. Running all commands...");
-
-    String allLines = file.readString();
-
-
-    int currentLocation = 0;
-    int nextLineLocation = 0;
-
-    while (nextLineLocation < allLines.length()) {
-        if (allLines[nextLineLocation] == '\n') {
-            String line = allLines.substring(currentLocation, nextLineLocation);
-            currentLocation = nextLineLocation + 1;
-            nextLineLocation = currentLocation;
-            logger.log(String("Line read from file: ") + line);
-            CommandParser::parse(line).execute(gantry);
-        }
-        nextLineLocation++;
-    }
-
-    String line = allLines.substring(currentLocation, nextLineLocation);
-    logger.log(String("Line read from file: ") + line);
-    CommandParser::parse(line).execute(gantry);
-
+//
+//    File file = SD.open(String("commands/") + fileName,FILE_READ);
+//    if (!file) {
+//        logger.log("no such file exists. Unable to read command");
+//    }
+//
+//    logger.log(String("file with filename ") + file.name() + " found. Running all commands...");
+//
+//    String allLines = file.readString();
+//
+//
+//    int currentLocation = 0;
+//    int nextLineLocation = 0;
+//
+//    while (nextLineLocation < allLines.length()) {
+//        if (allLines[nextLineLocation] == '\n') {
+//            String line = allLines.substring(currentLocation, nextLineLocation);
+//            currentLocation = nextLineLocation + 1;
+//            nextLineLocation = currentLocation;
+//            logger.log(String("Line read from file: ") + line);
+//            CommandParser::parse(line).execute(gantry);
+//        }
+//        nextLineLocation++;
+//    }
+//
+//    String line = allLines.substring(currentLocation, nextLineLocation);
+//    logger.log(String("Line read from file: ") + line);
+//    CommandParser::parse(line).execute(gantry);
+//
 }
 
 
@@ -640,28 +704,28 @@ void Command::executeWrite(GantryConfiguration &gantry) {
 }
 
 void Command::executeGlue(GantryConfiguration &gantry) {
-    logger.log("executing glue command.");
-    time = time_changed ? time : 1.0;
-    glue_speed = max(-1, min(1, glue_speed));
-    int speed = 255 * abs(glue_speed);
-    logger.log(String("Running glue at ") + speed + " for " + time + " seconds");
-
-
-    float startTime = millis();
-    if (speed < 0 ) {
-        analogWrite(GLUE_PIN_2, LOW);
-        analogWrite(GLUE_PIN_1, speed);
-    } else {
-        analogWrite(GLUE_PIN_1, LOW);
-        analogWrite(GLUE_PIN_2, speed);
-    }
-    delay(time * 1000);
-
-    logger.log("Finished running glue gun. setting glue speed to 0...");
-
-    analogWrite(GLUE_PIN_2, LOW);
-    analogWrite(GLUE_PIN_1, LOW);
-
+//    logger.log("executing glue command.");
+//    time = time_changed ? time : 1.0;
+//    glue_mm = max(-1, min(1, glue_mm));
+//    int speed = 255 * abs(glue_mm);
+//    logger.log(String("Running glue at ") + speed + " for " + time + " seconds");
+//
+//
+//    float startTime = millis();
+//    if (speed < 0 ) {
+//        analogWrite(GLUE_PIN_2, LOW);
+//        analogWrite(GLUE_PIN_1, speed);
+//    } else {
+//        analogWrite(GLUE_PIN_1, LOW);
+//        analogWrite(GLUE_PIN_2, speed);
+//    }
+//    delay(time * 1000);
+//
+//    logger.log("Finished running glue gun. setting glue speed to 0...");
+//
+//    analogWrite(GLUE_PIN_2, LOW);
+//    analogWrite(GLUE_PIN_1, LOW);
+//
 }
 
 boolean Command::isNoCommand() const {
