@@ -999,7 +999,7 @@ void Command::executeWrite(GantryConfiguration &gantry) {
     float y_beginning = this->y_changed ? this->y : gantry.position.y;
     for (int i = 0; i < letters.length(); i++) {
         char letter = letters[i];
-        float y_start = y_beginning + char_spacing_multiplier * width * i;
+        float y_start = y_beginning - char_spacing_multiplier * width * i;
         drawLetter(gantry, letter, x_beginning, y_start, width, height, z_start, z_jump);
     }
 }
