@@ -457,7 +457,7 @@ static String getXYWriteCoordinates(LetterData &data, float x, float y) {
     String command = "t2 ";
     double newx = data.bottomLeftX + y * data.height;
     double newy = data.bottomLeftY - x * data.width;
-    command = command + "X" + x + " Y" + y;
+    command = command + "X" + newx + " Y" + newy;
     return command;
 }
 
