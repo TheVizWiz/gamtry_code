@@ -455,8 +455,8 @@ typedef struct LetterData {
 
 static String getXYWriteCoordinates(LetterData &data, float x, float y) {
     String command = "t2 ";
-    x = x * data.height + data.bottomLeftX;
-    y = - y * data.width + data.bottomLeftY;
+    double newx = data.bottomLeftX + y * data.height;
+    double newy = data.bottomLeftY - x * data.width;
     command = command + "X" + x + " Y" + y;
     return command;
 }
