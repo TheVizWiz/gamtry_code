@@ -456,7 +456,7 @@ typedef struct LetterData {
 static String getXYWriteCoordinates(LetterData &data, float x, float y) {
     String command = "t2 ";
     x = x * data.height + data.bottomLeftX;
-    y = y * data.width + data.bottomLeftY;
+    y = - y * data.width + data.bottomLeftY;
     command = command + "X" + x + " Y" + y;
     return command;
 }
@@ -992,15 +992,15 @@ void Command::executeWrite(GantryConfiguration &gantry) {
 
     float z_start = this->z_changed ? this->z : gantry.position.z;
     float z_jump = z_start + 10.0; //10mm jump
-    float y_start = this->y_changed ? this->y : gantry.position.y;
+
     float width = base_size;
     float height = width * height_aspect_ratio; // aspect ratio
     float x_beginning = this->x_changed ? this->x : gantry.position.x;
-
+    float y_beginning = this->y_changed ? this->y : gantry.position.y;
     for (int i = 0; i < letters.length(); i++) {
         char letter = letters[i];
-        float x_start = x_beginning + char_spacing_multiplier * width * i;
-        drawLetter(gantry, letter, x_start, y_start, width, height, z_start, z_jump);
+        float y_start = y_beginning + char_spacing_multiplier * width * i;
+        drawLetter(gantry, letter, x_beginning, y_start, width, height, z_start, z_jump);
     }
 }
 
