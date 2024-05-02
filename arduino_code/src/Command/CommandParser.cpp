@@ -151,7 +151,11 @@ Command CommandParser::parse(String input) {
                 break;
 
             case COMMAND_WRITE_SPACING:
-                command.char_x_multiplier = amount.toFloat();
+                command.char_spacing_multiplier = amount.toFloat();
+                break;
+
+            case COMMAND_WRITE_ASPECT_RATIO:
+                command.height_aspect_ratio = amount.toFloat();
                 break;
 
 

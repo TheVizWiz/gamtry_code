@@ -54,7 +54,8 @@ public:
     String letters;
     String fileName;
     float base_size = 20.0;
-    float char_x_multiplier = 1.2;//
+    float height_aspect_ratio = 1.5f;
+    float char_spacing_multiplier = 1.2;//
     float glue_mm = 0.0f;
 
 

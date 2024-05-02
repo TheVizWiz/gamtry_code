@@ -994,12 +994,12 @@ void Command::executeWrite(GantryConfiguration &gantry) {
     float z_jump = z_start + 10.0; //10mm jump
     float y_start = this->y_changed ? this->y : gantry.position.y;
     float width = base_size;
-    float height = width * 1.5f; // aspect ratio
+    float height = width * height_aspect_ratio; // aspect ratio
     float x_beginning = this->x_changed ? this->x : gantry.position.x;
 
     for (int i = 0; i < letters.length(); i++) {
         char letter = letters[i];
-        float x_start = x_beginning + char_x_multiplier * width * i;
+        float x_start = x_beginning + char_spacing_multiplier * width * i;
         drawLetter(gantry, letter, x_start, y_start, width, height, z_start, z_jump);
     }
 }
@@ -1063,7 +1063,7 @@ String Command::toString() {
         case MACRO:
             break;
         case WRITE_COMMAND:
-            return String("{WRITE: ") + letters + "width: " + base_size + " x_dist: " + char_x_multiplier + "}";
+            return String("{WRITE: ") + letters + "width: " + base_size + " x_dist: " + char_spacing_multiplier + "}";
     }
 
     return "Command";

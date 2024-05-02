@@ -35,6 +35,7 @@ private: //static variables
     static const char COMMAND_WRITE = 'W';
     static const char COMMAND_WRITE_BASE = 'B';
     static const char COMMAND_WRITE_SPACING = 'C';
+    static const char COMMAND_WRITE_ASPECT_RATIO = 'R';
 
     static const char COMMAND_LOG = 'l';
     static const char COMMAND_WARN = 'w';
